@@ -2,52 +2,25 @@ async function carregarGenerosDaAPI() {
   const container = document.getElementById('container-generos');
   
   try {
-    // 1. Busca as séries na TVMaze
-    const resposta = await fetch('https://api.tvmaze.com/shows');
-    const series = await resposta.json();
+    const resposta = await fetch('./dados/generos.json');
+    const generosTraduzidos = await resposta.json();
     
-    // 2. Extrai os gêneros únicos da TVMaze (em inglês)
-    const todosOsGeneros = series.flatMap(serie => serie.genres);
-    const generosUnicos = [...new Set(todosOsGeneros)].sort();
-    
-    // Limpa a mensagem "Carregando..."
     container.innerHTML = ''; 
     
-    // 3. Usamos for...of para carregar e traduzir um por um dinamicamente
-    for (const genero of generosUnicos) {
-      
+    for (const [generoIngles, generoPtBr] of Object.entries(generosTraduzidos)) {
       const divItem = document.createElement('div');
+      divItem.style.position = 'relative'; 
       
       const checkbox = document.createElement('input');
       checkbox.type = 'checkbox';
       checkbox.name = 'genero';
-      checkbox.value = genero; // Mantém o value original (em inglês) para buscas futuras
-      checkbox.id = `genero-${genero}`;
+      checkbox.value = generoIngles; 
+      checkbox.id = `genero-${generoIngles}`;
       checkbox.classList.add('checkbox-oculto');
       
-      // ========================================================
-      // TRADUÇÃO DINÂMICA VIA API (Sem texto hardcoded no JS)
-      // ========================================================
-      let nomeExibicao = genero; // Valor padrão caso a tradução falhe
-      
-      try {
-        // Consome a API de tradução passando a palavra em inglês e pedindo pt-br
-        const resTraducao = await fetch(`https://api.mymemory.translated.net/get?q=${genero}&langpair=en|pt-br`);
-        const dadosTraducao = await resTraducao.json();
-        
-        // Se a API retornar a tradução com sucesso, atualiza o nome
-        if (dadosTraducao.responseData && dadosTraducao.responseData.translatedText) {
-          nomeExibicao = dadosTraducao.responseData.translatedText;
-        }
-      } catch (erroTraducao) {
-        console.warn(`Aviso: Não foi possível traduzir dinamicamente o gênero ${genero}`);
-      }
-      // ========================================================
-      
-      // Monta a Label que o usuário vai ver e clicar
       const label = document.createElement('label');
-      label.htmlFor = `genero-${genero}`;
-      label.textContent = nomeExibicao; // Recebe o texto traduzido pela API
+      label.htmlFor = `genero-${generoIngles}`;
+      label.textContent = generoPtBr; 
       label.classList.add('label-botao');
       
       divItem.appendChild(checkbox);
@@ -56,7 +29,7 @@ async function carregarGenerosDaAPI() {
     }
     
   } catch (erro) {
-    console.error('Erro ao carregar géneros:', erro);
+    console.error('Erro ao carregar gêneros:', erro);
     container.innerHTML = '<span style="color: red;">Erro ao carregar os gêneros.</span>';
   }
 }

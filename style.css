@@ -181,9 +181,26 @@ button {
     border-radius: 10px;
 }
 
-/* Esconde o quadradinho padrão do checkbox */
+/* Prende o checkbox invisível à posição do seu botão correspondente */
+.caixa-rolagem div {
+    position: relative; 
+}
+
+/* ESCONDE O CHECKBOX VISUALMENTE, MAS MANTÉM-NO ACESSÍVEL PARA O TECLADO */
 .checkbox-oculto {
-    display: none;
+    position: relative; /* Tira o elemento do fluxo visual da tela */
+    opacity: 0;         /* Torna-o 100% transparente */
+    width: 1px;         /* Encolhe o elemento */
+    height: 1px;
+    overflow: hidden;
+    z-index: -1; /* Garante que fica atrás da label e não bloqueia cliques */
+}
+
+/* 3.1. APLICAR O FOCO DE ACESSIBILIDADE (RECOMENDAÇÃO DO PDF) */
+/* Quando o checkbox invisível recebe o "Tab", desenhamos um contorno na Label */
+.checkbox-oculto:focus-visible + .label-botao {
+    outline: 3px solid  var(--verde-cinematch); /* Azul padrão de foco para dar alto contraste */
+    outline-offset: 2px;
 }
 
 /* Estilo padrão do botão de gênero (não selecionado) */
