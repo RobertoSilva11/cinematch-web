@@ -6,65 +6,122 @@
 
     <meta name="description" content="As melhores Séries para você em tempo real baseados no seu perfil e gêneros favoritos">
 
-    <meta property="og:title" content="CineMach Web: Recomendação de Séries">
+    <meta property="og:title" content="CineMatch Web: Recomendação de Séries">
     <meta property="og:description" content="As melhores Séries para você em tempo real baseados no seu perfil e gêneros favoritos">
-    <meta property="og:image" content="https://images.unsplash.com/photo-1598899134739-24c46f58b8c0?auto=format&fit=crop&w=1200&h=630&q=80">    <link rel="stylesheet" href="style.css">
+    <meta property="og:image" content="https://raw.githubusercontent.com/RobertoSilva11/cinematch-web/987e2073b7c0f06ae574589435052a29475fd5d3/img/Logo.png">
+    <meta property="og:image:type" content="image/png">
+    <meta property="og:image:width" content="720">
+    <meta property="og:image:height" content="380">
+    <meta property="og:image:alt" content="Logo do CineMatch Web">
+    <!-- Nova metatag Open Graph adicionada -->
+    <meta property="og:type" content="website">
 
     <title>CineMatch Web: Recomentação de Séries</title>
-
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
     <link rel="stylesheet" href="./style.css">
 </head>
 <body>
 
     <header>
-        <h1><img src="./img/logo-svg.svg" alt="Logótipo CineMatch Web" width="250"></h1>
-
-    <nav aria-label="Navegação principal">
-      <ul>
-        <!-- Um botão/link para reiniciar e trocar de perfil, conforme exigido no RF03 -->
-        <li><a href="#" id="btn-trocar-perfil">Trocar Perfil</a></li>
-      </ul>
-    </nav>
+      <div class="logo">
+        <img src="./img/Logo.png" alt="Logótipo CineMatch Web" width="15%">
+      </div>
+      
+      <nav class="acoes-usuario" aria-label="Menu do utilizador">
+        <button id="btn-trocar-perfil" class="btn-cabecalho" type="button">Trocar Perfil</button>
+        <button id="btn-modo" class="btn-cabecalho" type="button" aria-label="Alternar tema"></button>
+      </nav>
     </header>
 
     <main>
 
-        <section id="secao-perfil">
-        <h2>Descubra sua próxima série favorita</h2>
-    <h2>Crie o seu Perfil</h2>
-    <p>Diga-nos o que gosta de assistir para recebermos recomendações perfeitas.</p>
-    
-    <form id="form-perfil">
-      <!-- Campo Nome -->
-      <div class="grupo-input">
-        <label for="nome">Nome:</label>
-        <input type="text" id="nome" name="nome" placeholder="Como quer ser chamado?" required>
-      </div>
-      
-      <!-- Campo Idade -->
-      <div class="grupo-input">
-        <label for="idade">Idade:</label>
-        <input type="number" id="idade" name="idade" min="1" placeholder="Ex: 25" required>
-      </div>
-      
-      <!-- Seleção de Géneros Dinâmica (Preenchida via JS) -->
-      <fieldset class="grupo-checkbox">
-        <legend>Selecione os seus géneros favoritos:</legend>
-        
-        <div id="container-generos">
-          <p>A carregar géneros...</p>
-        </div>
-      </fieldset>
-      
-      <button type="submit" id="btn-salvar-perfil">Salvar e Ver Recomendações</button>
-    </form>
+        <section id="secao-perfil" class="cartao-perfil">
+          <form id="form-perfil">
+            <!-- Cabeçalho do Formulário-->
+            <div>
+              <!-- Corrigido de <h2> para <h1> -->
+              <h1><i class="bi bi-sliders icone-verde"></i> Seu Perfil</h1>
+              <p>Preencha para calcular as recomendações.</p>
+              <hr class="linha-divisoria">
+            </div>
+            <!-- Campo Nome -->
+            <div class="grupo-input">
+              <label for="nome">Nome:</label>
+              <input type="text" id="nome" name="nome" placeholder="Seu nome" required>
+            </div>
+            <!-- Campo Idade -->
+            <div class="grupo-input">
+              <label for="idade">Idade:</label>
+              <input type="number" id="idade" name="idade" min="1" placeholder="Ex: 25" required>
+            </div>
+            <!-- Seleção de Gêneros Dinâmica -->
+            <div class="grupo-input">
+              <label>Gêneros Favoritos</label>
+
+              <div id="container-generos" class="caixa-rolagem">
+                <span>Selecione seus gêneros favoritos</span>
+              </div>
+              <small style="font-size: 0.8em; color: #888">Selecione quantos gêneros quiser</small>
+            </div>
+            <button type="submit" id="btn-salvar-perfil">Salvar e Ver Recomendações</button>
+          </form>
 
         </section>
 
         <!--Seção de séries recomendadas-->
         <section id="secao-resultados">
-            <!-- O container #resultados receberá os <article> (cards) gerados pelo JavaScript (RF08) -->
-            <div id="resultados" aria-live="polite"></div>
+            <!-- Cabeçalho da Seção de Resultados -->
+<div class="cabecalho-resultados">
+  <h2>Recomendado Pra Você</h2>
+  <span class="ordenacao"><i class="bi bi-sort-down"></i> Ordenado por nota</span>
+</div>
+
+<!-- Grelha de Cartões -->
+<div class="grid-series">
+  
+  <!-- Exemplo de Cartão 1 (Stranger Things) -->
+  <article class="cartao-serie">
+    <div class="capa-serie">
+      <!-- Imagem de capa genérica para teste -->
+      <img src="https://image.tmdb.org/t/p/w500/49WJfeN0moxb9IPfGn8xXKSg7xO.jpg" alt="Capa da série Stranger Things">
+      <span class="badge-match">70% Match</span>
+    </div>
+    
+    <div class="corpo-serie">
+      <h3>Stranger Things</h3>
+      
+      <div class="linha-info">
+        <span class="generos-serie">Drama, Sci-Fi</span>
+        <span class="nota-serie"><i class="bi bi-star-fill text-warning"></i> 8.7</span>
+      </div>
+      
+      <div class="linha-afinidade">
+        <span class="badge-afinidade alta">Alta Afinidade</span>
+        <span class="falta-genero">Falta: Terror</span>
+      </div>
+    </div>
+  </article>
+
+  <!-- Exemplo de Cartão 2 (Breaking Bad) -->
+  <article class="cartao-serie">
+    <div class="capa-serie">
+      <img src="https://image.tmdb.org/t/p/w500/ggFHVNu6YYI5L9pCfOacjizRGt.jpg" alt="Capa da série Breaking Bad">
+      <span class="badge-match">85% Match</span>
+    </div>
+    <div class="corpo-serie">
+      <h3>Breaking Bad</h3>
+      <div class="linha-info">
+        <span class="generos-serie">Drama, Crime</span>
+        <span class="nota-serie"><i class="bi bi-star-fill text-warning"></i> 9.5</span>
+      </div>
+      <div class="linha-afinidade">
+        <span class="badge-afinidade media">Média Afinidade</span>
+        <span class="falta-genero">Falta: Ação</span>
+      </div>
+    </div>
+  </article>
+
+</div>
         </section>
 
     </main>
@@ -73,12 +130,9 @@
     <p>Projeto CineMatch Web desenvolvido por Diego Lopes, Edson Antonio e Roberto Silva — Qualificação em Desenvolvimento Mobile com React Native (SCTEC/SENAI).</p>
     </footer>
 
-    <!-- Importação do JavaScript como Módulo ES (RF14) -->
     <script type="module" src="./scripts/script.js"></script>
     <script type="module" src="./scripts/ui.js"></script>
     <script type="module" src="./scripts/modelo.js"></script>
-
-
 
 </body>
 </html>
