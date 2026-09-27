@@ -1,50 +1,187 @@
 <!DOCTYPE html>
-<html lang="pt-BR">
+<html lang="pt-BR" class="dark">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-    <title>CineMatch Web: Recomentação de Séries</title>
-    <meta name="description" content="As melhores Séries para você em tempo real baseados no seu perfil e gêneros favoritos">
+    <meta name="description"
+        content="As melhores Séries para você em tempo real baseados no seu perfil e gêneros favoritos">
 
-    <meta property="og:title" content="CineMach Web: Recomendação de Séries">
-    <meta property="og:description" content="As melhores Séries para você em tempo real baseados no seu perfil e gêneros favoritos">
-    <meta property="og:image" content="https://images.unsplash.com/photo-1598899134739-24c46f58b8c0?auto=format&fit=crop&w=1200&h=630&q=80">    <link rel="stylesheet" href="style.css">
+    <meta property="og:title" content="CineMatch Web: Recomendação de Séries">
+    <meta property="og:description"
+        content="As melhores Séries para você em tempo real baseados no seu perfil e gêneros favoritos">
+    <meta property="og:image"
+        content="https://raw.githubusercontent.com/RobertoSilva11/cinematch-web/987e2073b7c0f06ae574589435052a29475fd5d3/img/Logo.png">
+    <meta property="og:image:type" content="image/png">
+    <meta property="og:image:width" content="720">
+    <meta property="og:image:height" content="380">
+    <meta property="og:image:alt" content="Logo do CineMatch Web">
+    <meta property="og:type" content="website">
+
+    <title>CineMatch Web: Recomendação de Séries</title>
+    <!-- Bootstrap Icons -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+    <link rel="stylesheet" href="./style.css">
 </head>
+
 <body>
 
+    <!-- CABEÇALHO DA APLICAÇÃO -->
     <header>
-        <h1><img src="./img/logo-fundo.png" alt="Logótipo CineMatch Web" width="250"></h1>
+        <div class="logo">
+            <h1><img src="./img/logo-fundo.png" alt="Logótipo CineMatch Web"></h1>
+        </div>
 
-    <nav aria-label="Navegação principal">
-      <ul>
-        <!-- Um botão/link para reiniciar e trocar de perfil, conforme exigido no RF03 -->
-        <li><a href="#" id="btn-trocar-perfil">Trocar Perfil</a></li>
-      </ul>
-    </nav>
+        <div class="header-direita">
+            <!-- Indicador Discreto de Cidade (Invisível por padrão, visível quando ativo) -->
+            <div id="indicador-cidade" class="indicador-cidade escondido">
+                <i class="bi bi-geo-alt-fill"></i>
+                <span id="texto-cidade">Detectando local...</span>
+            </div>
+
+            <!-- Botão Hambúrguer para Telas Menores -->
+            <button type="button" id="btn-hamburguer" class="btn-hamburguer" aria-label="Abrir menu">
+                <i class="bi bi-list"></i>
+            </button>
+
+            <!-- Menu de Navegação Principal -->
+            <nav id="menu-navegacao" class="acoes-usuario" aria-label="Navegação principal">
+                <ul>
+                    <!-- Botão Página Inicial -->
+                    <li>
+                        <a href="#" id="btn-pagina-inicial">
+                            <i class="bi bi-house-door"></i>
+                            <span>Página Inicial</span>
+                        </a>
+                    </li>
+                    <!-- Botão para Ativar / Desativar Localização -->
+                    <li>
+                        <button type="button" id="btn-geolocalizacao">
+                            <i class="bi bi-crosshair"></i>
+                            <span id="texto-btn-geo">Ativar Localização</span>
+                        </button>
+                    </li>
+                    <!-- Botão Alternância de Tema -->
+                    <li>
+                        <button type="button" id="btn-theme-toggle">
+                            <i id="icone-tema" class="bi bi-moon-stars-fill"></i>
+                            <span id="texto-tema">Tema Escuro</span>
+                        </button>
+                    </li>
+                    <!-- Botão Trocar Perfil (RF03) -->
+                    <li>
+                        <a href="#" id="btn-trocar-perfil">
+                            <i class="bi bi-person-gear"></i>
+                            <span>Trocar Perfil</span>
+                        </a>
+                    </li>
+                    <!-- Botão Criar Perfil -->
+                    <li>
+                        <a href="#" id="btn-criar-perfil">
+                            <i class="bi bi-person-gear"></i>
+                            <span>Criar Perfil</span>
+                        </a>
+                    </li>
+                </ul>
+            </nav>
+        </div>
     </header>
 
+    <!-- CONTEÚDO PRINCIPAL -->
     <main>
-
-        <section id="secao-perfil">
-            <h2>Descubra sua próxima série favorita</h2>
-            <!--inserir formulário do RF02 aqui-->
+        <!-- SEÇÃO INICIAL (APRESENTAÇÃO) -->
+        <section id="secao-inicial" class="escondido">
+            <div class="hero-conteudo">
+                <h2>A Emoção do Cinema na Web!</h2>
+                <p class="subtitulo-secao">Descubra séries incríveis baseadas no seu gosto pessoal. Crie seu perfil, escolha os seus gêneros favoritos e encontre a sua próxima maratona em segundos.</p>
+                <button id="btn-hero-criar" class="btn-destaque">
+                    <i class="bi bi-person-plus-fill"></i> Criar Meu Perfil
+                </button>
+            </div>
+            
+            <!-- Carrossel de Séries com Rolagem Infinita -->
+            <div class="banner-series">
+                <div class="trilho-series">
+    <!-- Cards Originais (Imagens oficiais dos servidores TVMaze) -->
+    <div class="card-banner"><img src="https://static.tvmaze.com/uploads/images/medium_portrait/200/501942.jpg" alt="Stranger Things" loading="lazy"></div>
+    <div class="card-banner"><img src="https://static.tvmaze.com/uploads/images/medium_portrait/0/2400.jpg" alt="Breaking Bad" loading="lazy"></div>
+    <div class="card-banner"><img src="https://static.tvmaze.com/uploads/images/medium_portrait/499/1249767.jpg" alt="The Boys" loading="lazy"></div>
+    <div class="card-banner"><img src="https://static.tvmaze.com/uploads/images/medium_portrait/260/651475.jpg" alt="Dark" loading="lazy"></div>
+    <div class="card-banner"><img src="https://static.tvmaze.com/uploads/images/medium_portrait/85/213184.jpg" alt="The Office" loading="lazy"></div>
+    
+    <!-- Cards Duplicados (Mesmos links, obrigatórios para o loop infinito não falhar) -->
+    <div class="card-banner"><img src="https://static.tvmaze.com/uploads/images/medium_portrait/200/501942.jpg" alt="Stranger Things" loading="lazy"></div>
+    <div class="card-banner"><img src="https://static.tvmaze.com/uploads/images/medium_portrait/0/2400.jpg" alt="Breaking Bad" loading="lazy"></div>
+    <div class="card-banner"><img src="https://static.tvmaze.com/uploads/images/medium_portrait/499/1249767.jpg" alt="The Boys" loading="lazy"></div>
+    <div class="card-banner"><img src="https://static.tvmaze.com/uploads/images/medium_portrait/260/651475.jpg" alt="Dark" loading="lazy"></div>
+    <div class="card-banner"><img src="https://static.tvmaze.com/uploads/images/medium_portrait/85/213184.jpg" alt="The Office" loading="lazy"></div>
+</div>
+            </div>
+        </section>
+        <!-- SEÇÃO DE SELEÇÃO DE PERFIS -->
+        <section id="secao-selecao-perfil" class="escondido">
+            <h2><i class="bi bi-people"></i> Quem está assistindo?</h2>
+            <p class="subtitulo-secao">Selecione um perfil para continuar ou crie um novo no menu.</p>
+            <div id="lista-perfis" class="lista-perfis"></div>
         </section>
 
-        <!--Seção de séries recomendadas-->
+        <!-- SEÇÃO DO FORMULÁRIO DE PERFIL (RF02) -->
+        <section id="secao-perfil">
+            <h2>Descubra sua próxima série favorita</h2>
+
+            <form id="form-perfil">
+                <!-- Campo Nome -->
+                <div class="campo">
+                    <label for="nome">Seu Nome:</label>
+                    <input type="text" id="nome" name="nome" required placeholder="Ex: Roberto Silva"
+                        autocomplete="name">
+                </div>
+
+                <!-- Campo Idade -->
+                <div class="campo">
+                    <label for="idade">Sua Idade:</label>
+                    <input type="number" id="idade" name="idade" min="1" max="120" required placeholder="Ex: 25">
+                </div>
+
+                <!-- Seleção de Gêneros em Botões -->
+                <div class="grupo-input campo">
+                    <label>Gêneros Favoritos</label>
+                    <div id="container-generos" class="caixa-rolagem"></div>
+                    <small class="texto-ajuda">Clique nos botões para selecionar ou desselecionar</small>
+                </div>
+
+                <input type="hidden" id="generos-selecionados" name="generos" value="">
+
+                <!-- Botões de Ação (Começam inativos por padrão) -->
+                <div class="botoes-form">
+                    <button type="button" id="btn-salvar-perfil" class="btn-acao" disabled>
+                        <i class="bi bi-floppy"></i> Salvar Perfil
+                    </button>
+                    <button type="submit" id="btn-submit" class="btn-acao" disabled>
+                        <i class="bi bi-search"></i> Achar Meu Match
+                    </button>
+                </div>
+            </form>
+        </section>
+
+        <!-- SEÇÃO DE RESULTADOS (RF08) -->
         <section id="secao-resultados">
-            <!-- O container #resultados receberá os <article> (cards) gerados pelo JavaScript (RF08) -->
             <div id="resultados" aria-live="polite"></div>
         </section>
 
     </main>
-    
+
+    <!-- RODAPÉ DA APLICAÇÃO -->
     <footer>
-    <p>Projeto CineMatch Web desenvolvido por Diego Lopes, Edson Antonio e Roberto Silva — Qualificação em Desenvolvimento Mobile com React Native (SCTEC/SENAI).</p>
+        <p>&copy; 2026 Projeto CineMatch Web: Desenvolvido por <strong>Diego Lopes</strong>, <strong>Edson
+                Antonio</strong> e <strong>Roberto Silva</strong> — Qualificação em
+            Desenvolvimento Mobile com React Native (SCTEC/SENAI).</p>
     </footer>
 
-    <!-- Importação do JavaScript como Módulo ES (RF14) -->
-    <script type="module" src="script.js"></script>
+    <!-- Módulo JS Principal (RF14) -->
+    <script type="module" src="./scripts/script.js"></script>
 
 </body>
+
 </html>
