@@ -1,0 +1,513 @@
+@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap');
+
+/* --- VARIÁVEIS DE PALETA E TEMAS --- */
+:root {
+    --bordo-escuro: #180003;
+    --bordo-card: #1b0205b0;
+    --bordo-input: #250408;
+    
+    --azul-petroleo: #0A9396;
+    --azul-petroleo-hover: #005F73;
+    
+    --amadeirado-claro: #E9D8A6;
+
+    /* Modo Escuro (Default) */
+    --bg-principal: var(--bordo-escuro);
+    --bg-card: var(--bordo-card);
+    --bg-input: var(--bordo-input);
+    --text-main: #F4EAE1;
+    --text-muted: #D1BFA7;
+    --border-color: #722F37;
+    --primary-accent: var(--azul-petroleo);
+    --secondary-accent: var(--amadeirado-claro);
+}
+
+/* Modo Claro */
+html.light {
+    --bg-principal: #EAECEF;
+    --bg-card: #F8F9FA;
+    --bg-input: #E2E5E9;
+    --text-main: #1C2526;
+    --text-muted: #5C6B73;
+    --border-color: #005F73;
+    --primary-accent: #0A9396;
+    --secondary-accent: #DDA15E;
+}
+
+/* --- RESET BÁSICO --- */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    background-color: var(--bg-principal);
+    color: var(--text-main);
+    transition: background-color 0.3s ease, color 0.3s ease;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+}
+
+/* --- CABEÇALHO --- */
+header {
+    background-color: var(--bg-card);
+    border-bottom: 2px solid var(--border-color);
+    padding: 0.85rem 1rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+}
+
+header .logo img {
+    width: 80%;
+    max-width: 140px;
+    height: auto;
+    display: block;
+}
+
+.header-direita {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 0.85rem;
+}
+
+/* Indicador de Cidade, com cor em Azul Petróleo */
+.indicador-cidade {
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+    font-size: 0.78rem;
+    font-weight: 700;
+    color: var(--primary-accent);
+    background: transparent;
+    border: none;
+    padding: 0;
+}
+
+.indicador-cidade i {
+    color: var(--primary-accent);
+    font-size: 0.85rem;
+}
+
+/* Botão Hambúrguer */
+.btn-hamburguer {
+    display: block;
+    background: var(--bg-input);
+    color: var(--text-main);
+    border: 2px solid var(--border-color);
+    border-radius: 8px;
+    padding: 0.35rem 0.65rem;
+    font-size: 1.1rem;
+    cursor: pointer;
+}
+
+/* Menu Ocultado no Mobile */
+nav {
+    display: none;
+    width: 100%;
+    margin-top: 0.25rem;
+}
+
+nav.aberto {
+    display: block;
+}
+
+nav ul {
+    list-style: none;
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    gap: 0.5rem;
+}
+
+nav li, nav button, nav a {
+    width: 100%;
+    justify-content: center;
+}
+
+nav button, 
+nav a {
+    background-color: var(--bg-input);
+    color: var(--text-main);
+    border: 2px solid var(--border-color);
+    padding: 0.5rem 0.85rem;
+    border-radius: 8px;
+    font-size: 0.82rem;
+    font-weight: 600;
+    cursor: pointer;
+    text-decoration: none;
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+    transition: all 0.2s ease;
+}
+
+nav button:hover, 
+nav a:hover {
+    border-color: var(--primary-accent);
+}
+
+/* --- CONTEÚDO PRINCIPAL --- */
+main {
+    flex: 1;
+    width: 100%;
+    margin: 1rem auto;
+    padding: 0 0.75rem;
+    display: flex;
+    flex-direction: column;
+    gap: 1.25rem;
+}
+
+section {
+    background-color: var(--bg-card);
+    border: 2px solid var(--border-color);
+    border-radius: 12px;
+    padding: 1.25rem;
+    box-shadow: 0 6px 15px rgba(0, 0, 0, 0.15);
+}
+
+section h2 {
+    font-size: 1.1rem;
+    margin-bottom: 1rem;
+}
+
+form {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
+
+.campo {
+    display: flex;
+    flex-direction: column;
+    gap: 0.4rem;
+}
+
+.campo label {
+    font-size: 0.8rem;
+    font-weight: 700;
+}
+
+.campo input[type="text"],
+.campo input[type="number"] {
+    background-color: var(--bg-input);
+    color: var(--text-main);
+    border: 2px solid var(--border-color);
+    border-radius: 8px;
+    padding: 0.65rem 0.85rem;
+    font-size: 0.85rem;
+    outline: none;
+}
+
+.campo input[type="text"]:focus,
+.campo input[type="number"]:focus {
+    border-color: var(--primary-accent);
+}
+
+#container-generos {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 0.5rem;
+}
+
+.btn-genero {
+    background-color: var(--bg-input);
+    color: var(--text-main);
+    border: 2px solid var(--border-color);
+    border-radius: 8px;
+    padding: 0.5rem;
+    font-size: 0.8rem;
+    font-weight: 600;
+    cursor: pointer;
+}
+
+.btn-genero.selecionado {
+    background-color: var(--primary-accent);
+    color: #ffffff;
+    border-color: var(--primary-accent);
+}
+
+/* --- BOTÕES DO FORMULÁRIO (SALVAR E MATCH) --- */
+.botoes-form {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    margin-top: 10px;
+}
+
+.btn-acao {
+    background-color: #5C6B73; /* Estilo apagado */
+    color: #ffffff;
+    border: none;
+    border-radius: 8px;
+    padding: 0.75rem;
+    font-size: 0.95rem;
+    font-weight: 800;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    transition: all 0.3s ease;
+    opacity: 0.6; /* Deixa apagado para indicar que está bloqueado */
+    cursor: not-allowed;
+}
+
+/* Quando o botão for ativado pelo JavaScript, muda para Azul petróleo */
+.btn-acao:not(:disabled) {
+    background-color: var(--primary-accent);
+    color: var(--bg-principal); /* Cor escura do fundo para dar contraste com o azul */
+    opacity: 1;
+    cursor: pointer;
+}
+
+/* 2. Pinta as bordas e o texto digitado nos inputs de azul */
+.form-completo input[type="text"],
+.form-completo input[type="number"] {
+    border-color: var(--primary-accent);
+    color: var(--primary-accent);
+}
+
+/* 3. Pinta os gêneros que estão selecionados de azul */
+.form-completo .btn-genero.selecionado {
+    background-color: var(--primary-accent);
+    border-color: var(--primary-accent);
+    color: var(--bordo-escuro); 
+}
+
+.btn-acao:not(:disabled):hover {
+    transform: scale(1.02);
+    filter: brightness(1.1);
+}
+
+/* CLASSE DE OCULTAÇÃO */
+.escondido {
+    display: none;
+}
+
+#resultados {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 1rem;
+}
+
+footer {
+    background-color: var(--bg-card);
+    border-top: 2px solid var(--border-color);
+    padding: 1rem;
+    text-align: center;
+    font-size: 0.75rem;
+    color: var(--text-muted);
+}
+
+/* Breakpoints para telas maiores */
+@media (min-width: 768px) {
+    header .logo img {
+        width: 140px;
+    }
+
+    .btn-hamburguer {
+        display: none;
+    }
+
+    nav {
+        display: block;
+        width: auto;
+        margin-top: 0;
+    }
+
+    nav ul {
+        flex-direction: row;
+        gap: 0.75rem;
+    }
+
+    nav li, nav button, nav a {
+        width: auto;
+    }
+
+    main {
+        max-width: 1200px;
+        margin: 2rem auto;
+        padding: 0 1rem;
+        gap: 2rem;
+    }
+
+    #container-generos {
+        grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
+    }
+
+    #resultados {
+        grid-template-columns: repeat(3, 1fr);
+        gap: 1.5rem;
+    }
+}
+
+/* --- LISTA DE PERFIS E BOTÃO DELETAR --- */
+.lista-perfis {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.item-perfil {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 15px 20px;
+    background-color: var(--bg-input);
+    border: 2px solid var(--border-color);
+    border-radius: 10px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.item-perfil:hover {
+    border-color: var(--primary-accent);
+    transform: translateX(5px);
+}
+
+.info-perfil {
+    flex-grow: 1;
+}
+
+.info-perfil strong {
+    font-size: 1.1rem;
+    color: var(--primary-accent);
+    display: block;
+}
+
+.info-perfil small {
+    color: var(--text-muted);
+}
+
+.btn-deletar-perfil {
+    background: transparent;
+    color: #e63946;
+    border: none;
+    font-size: 1.2rem;
+    padding: 5px 10px;
+    opacity: 0; /* Invisível por padrão */
+    cursor: pointer;
+    transition: opacity 0.2s ease, transform 0.2s ease;
+}
+
+/* Quando passa o mouse no card, o botão de deletar aparece */
+.item-perfil:hover .btn-deletar-perfil {
+    opacity: 1; 
+}
+
+.btn-deletar-perfil:hover {
+    transform: scale(1.2);
+}
+
+/* --- CLASSES DE TEXTO AUXILIARES --- */
+.subtitulo-secao {
+    font-size: 0.85rem;
+    color: var(--text-muted);
+    margin-bottom: 1rem;
+}
+
+.texto-ajuda {
+    font-size: 0.8rem;
+    color: var(--text-muted);
+    display: block; /* Garante que o small fique na sua própria linha */
+    margin-top: 0.2rem;
+}
+
+.mensagem-feedback {
+    text-align: center;
+    color: var(--text-muted);
+    font-weight: 500;
+    padding: 2rem 0; /* Dá um respiro para a mensagem não ficar colada ao topo */
+}
+
+/* =========================================
+   SEÇÃO INICIAL (APRESENTAÇÃO E CARROSSEL)
+   ========================================= */
+#secao-inicial {
+    text-align: center;
+    padding: 2rem 0;
+    overflow: hidden; /* Evita que o carrossel crie barra de rolagem na página */
+}
+
+.hero-conteudo {
+    max-width: 600px;
+    margin: 0 auto 2rem;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 1rem;
+    padding: 0 1rem;
+}
+
+.hero-conteudo h2 {
+    font-size: 2rem;
+    color: var(--primary-accent);
+}
+
+.btn-destaque {
+    background-color: var(--primary-accent);
+    color: #fff;
+    border: none;
+    padding: 1rem 2.5rem;
+    font-size: 1.1rem;
+    font-weight: 800;
+    border-radius: 50px;
+    cursor: pointer;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+    margin-top: 1rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.btn-destaque:hover {
+    transform: scale(1.05);
+    box-shadow: 0 6px 20px rgba(10, 147, 150, 0.4);
+}
+
+/* --- BANNER DESLIZANTE --- */
+.banner-series {
+    width: 100%;
+    overflow: hidden;
+    position: relative;
+    padding: 10px 0;
+    /* Cria um leve degradê nas laterais para suavizar a entrada/saída das imagens */
+    mask-image: linear-gradient(to right, transparent, black 5%, black 95%, transparent);
+    -webkit-mask-image: linear-gradient(to right, transparent, black 5%, black 95%, transparent);
+}
+
+.trilho-series {
+    display: flex;
+    gap: 15px;
+    width: max-content;
+    /* 25s determina a velocidade. Ajuste para mais rápido ou mais lento */
+    animation: rolarBanner 50s linear infinite; 
+}
+
+.card-banner {
+    width: 130px;
+    height: 195px;
+    border-radius: 8px;
+    overflow: hidden;
+    flex-shrink: 0;
+    box-shadow: 0 4px 8px rgba(0,0,0,0.3);
+}
+
+.card-banner img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+/* A animação translada 50% do trilho, pois temos 2 conjuntos idênticos de imagens */
+@keyframes rolarBanner {
+    0% { transform: translateX(0); }
+    100% { transform: translateX(-50%); }
+}
