@@ -1,364 +1,513 @@
-/* =========================================
-   IMPORTAÇÃO DE FONTES
-   ========================================= */
 @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap');
 
-/* =========================================
-   VARIÁVEIS DE TEMA (CLARO E ESCURO)
-   ========================================= */
-/* MODO ESCURO (Padrão do seu site) */
+/* --- VARIÁVEIS DE PALETA E TEMAS --- */
 :root {
-    --bg-principal: #120A0C;
-    --bg-card: #1E1215;
-    --bg-input: #2A1A1E;
-    --text-main: #F5E6CC;
-    --text-muted: #C5B8A5;
-    --border-color: rgba(114, 47, 55, 0.5);
-    --verde-cinematch: #2EC4B6;
+    --bordo-escuro: #180003;
+    --bordo-card: #1b0205b0;
+    --bordo-input: #250408;
+    
+    --azul-petroleo: #0A9396;
+    --azul-petroleo-hover: #005F73;
+    
+    --amadeirado-claro: #E9D8A6;
+
+    /* Modo Escuro (Default) */
+    --bg-principal: var(--bordo-escuro);
+    --bg-card: var(--bordo-card);
+    --bg-input: var(--bordo-input);
+    --text-main: #F4EAE1;
+    --text-muted: #D1BFA7;
+    --border-color: #722F37;
+    --primary-accent: var(--azul-petroleo);
+    --secondary-accent: var(--amadeirado-claro);
 }
 
-/* MODO CLARO (Ativado via JavaScript no body) */
-body.modo-claro {
+/* Modo Claro */
+html.light {
     --bg-principal: #EAECEF;
     --bg-card: #F8F9FA;
     --bg-input: #E2E5E9;
-    --text-main: #2D1A1E;
-    --text-muted: #6C757D;
-    --border-color: #722F37;    
-    --verde-cinematch: #0F9F90;
+    --text-main: #1C2526;
+    --text-muted: #5C6B73;
+    --border-color: #005F73;
+    --primary-accent: #0A9396;
+    --secondary-accent: #DDA15E;
 }
 
-/* =========================================
-   ESTILOS GERAIS DA PÁGINA
-   ========================================= */
+/* --- RESET BÁSICO --- */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
 body {
     font-family: 'Plus Jakarta Sans', sans-serif;
     background-color: var(--bg-principal);
     color: var(--text-main);
     transition: background-color 0.3s ease, color 0.3s ease;
-    margin: 0;
-    padding: 20px;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
 }
 
-/* =========================================
-   CABEÇALHO E NAVEGAÇÃO
-   ========================================= */
+/* --- CABEÇALHO --- */
 header {
+    background-color: var(--bg-card);
+    border-bottom: 2px solid var(--border-color);
+    padding: 0.85rem 1rem;
     display: flex;
-    flex-direction: row;
     justify-content: space-between;
     align-items: center;
-    padding: 10px 20px;
-    background-color: var(--bg-card);
-    border: 2px solid var(--border-color);
-    border-radius: 15px;
-    margin-bottom: 20px;
+    position: sticky;
+    top: 0;
+    z-index: 100;
 }
 
-nav {
-    display: flex;
-    flex-direction: row;
-    justify-content: flex-end;
-    align-items: center;
-    gap: 15px;
-}
-
-.logo {
-    max-width: 50%;
+header .logo img {
+    width: 80%;
+    max-width: 140px;
     height: auto;
-}
-
-.icone-verde {
-    color: var(--verde-cinematch);
-}
-
-.linha-divisoria {
-    border: none;
-    border-top: 1px solid var(--border-color);
-    margin: 15px 0;
-}
-
-/* =========================================
-   CARTÃO DO PERFIL
-   ========================================= */
-.cartao-perfil {
-    background-color: var(--bg-card);
-    border: 2px solid var(--border-color);
-    border-radius: 15px;
-    padding: 20px;
-    height: auto; 
-    min-height: 500px; /* Garante tamanho mínimo sem vazar o conteúdo */
-    box-sizing: border-box;
-}
-
-/* =========================================
-   FORMULÁRIOS E INPUTS (TEXTO E NÚMERO)
-   ========================================= */
-.grupo-input {
-    margin-bottom: 20px;
-}
-
-.grupo-input label {
     display: block;
-    margin-bottom: 8px;
-    font-weight: 600;
 }
 
-.grupo-input input[type="text"],
-.grupo-input input[type="number"] {
-    background-color: var(--bg-input);
+.header-direita {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 0.85rem;
+}
+
+/* Indicador de Cidade, com cor em Azul Petróleo */
+.indicador-cidade {
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+    font-size: 0.78rem;
+    font-weight: 700;
+    color: var(--primary-accent);
+    background: transparent;
+    border: none;
+    padding: 0;
+}
+
+.indicador-cidade i {
+    color: var(--primary-accent);
+    font-size: 0.85rem;
+}
+
+/* Botão Hambúrguer */
+.btn-hamburguer {
+    display: block;
+    background: var(--bg-input);
     color: var(--text-main);
     border: 2px solid var(--border-color);
-    border-radius: 10px;
-    padding: 10px;
-    width: 100%;
-    box-sizing: border-box;
-    outline: none;
-    font-family: inherit;
-    transition: border-color 0.3s ease;
-}
-
-.grupo-input input:focus {
-    border-color: var(--verde-cinematch);
-}
-
-/* =========================================
-   BOTÕES BASE E BOTÃO PRINCIPAL (SALVAR)
-   ========================================= */
-button {
-    cursor: pointer;
-    border-radius: 10px;
-    font-weight: bold;
-    font-family: inherit;
-}
-
-.btn-cabecalho {
-    background-color: transparent;
-    color: var(--text-main);
-    border: 1px solid var(--border-color);
-    padding: 8px 12px;
-    transition: all 0.3s ease;
-}
-
-.btn-cabecalho:hover {
-    background-color: var(--bg-input);
-}
-
-#btn-salvar,
-#btn-salvar-perfil {
-    background-color: var(--verde-cinematch);
-    color: white;
-    width: 100%;
-    padding: 15px;
-    border: none;
-    margin-top: 15px;
-    font-size: 1.1em;
-    transition: opacity 0.3s ease;
-}
-
-#btn-salvar:hover,
-#btn-salvar-perfil:hover {
-    opacity: 0.9;
-}
-
-/* =========================================
-   CAIXA DE GÊNEROS (GRID E BOTÕES WIREFRAME)
-   ========================================= */
-
-/* A caixa principal que contém a lista */
-.caixa-rolagem {
-    display: grid;
-    grid-template-columns: 1fr 1fr; /* Exatamente 2 colunas */
-    gap: 10px; /* Espaço entre os botões */
-    
-    /* Altura controlada para exibir ~4 itens (2 linhas) */
-    max-height: 120px; 
-    overflow-y: auto; /* Barra de rolagem automática */
-    
-    padding: 10px;
-    background-color: var(--bg-input);
-    border: 2px solid var(--border-color);
-    border-radius: 10px;
-}
-
-/* Esconde o quadradinho padrão do checkbox */
-.checkbox-oculto {
-    display: none;
-}
-
-/* Estilo padrão do botão de gênero (não selecionado) */
-.label-botao {
-    display: block;
-    width: 100%;
-    padding: 12px 5px;
-    text-align: center;
-    border: 1px solid var(--border-color);
     border-radius: 8px;
-    background-color: var(--bg-card);
-    color: var(--text-main);
+    padding: 0.35rem 0.65rem;
+    font-size: 1.1rem;
     cursor: pointer;
-    font-size: 0.9rem;
-    font-weight: 500;
-    transition: all 0.3s ease;
-    box-sizing: border-box;
-    margin: 0;
 }
 
-/* A MÁGICA: Estilo do botão de gênero QUANDO SELECIONADO */
-.checkbox-oculto:checked + .label-botao {
-    background-color: var(--verde-cinematch);
-    border-color: var(--verde-cinematch);
-    color: var(--bg-principal); /* Texto com contraste automático */
+/* Menu Ocultado no Mobile */
+nav {
+    display: none;
+    width: 100%;
+    margin-top: 0.25rem;
+}
+
+nav.aberto {
+    display: block;
+}
+
+nav ul {
+    list-style: none;
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    gap: 0.5rem;
+}
+
+nav li, nav button, nav a {
+    width: 100%;
+    justify-content: center;
+}
+
+nav button, 
+nav a {
+    background-color: var(--bg-input);
+    color: var(--text-main);
+    border: 2px solid var(--border-color);
+    padding: 0.5rem 0.85rem;
+    border-radius: 8px;
+    font-size: 0.82rem;
+    font-weight: 600;
+    cursor: pointer;
+    text-decoration: none;
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+    transition: all 0.2s ease;
+}
+
+nav button:hover, 
+nav a:hover {
+    border-color: var(--primary-accent);
+}
+
+/* --- CONTEÚDO PRINCIPAL --- */
+main {
+    flex: 1;
+    width: 100%;
+    margin: 1rem auto;
+    padding: 0 0.75rem;
+    display: flex;
+    flex-direction: column;
+    gap: 1.25rem;
+}
+
+section {
+    background-color: var(--bg-card);
+    border: 2px solid var(--border-color);
+    border-radius: 12px;
+    padding: 1.25rem;
+    box-shadow: 0 6px 15px rgba(0, 0, 0, 0.15);
+}
+
+section h2 {
+    font-size: 1.1rem;
+    margin-bottom: 1rem;
+}
+
+form {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
+
+.campo {
+    display: flex;
+    flex-direction: column;
+    gap: 0.4rem;
+}
+
+.campo label {
+    font-size: 0.8rem;
     font-weight: 700;
 }
 
-/* =========================================
-   LAYOUT PRINCIPAL (MAIN) - MOBILE FIRST
-   ========================================= */
-main {
-    display: flex;
-    flex-direction: column; /* No telemóvel, o perfil fica em cima e os resultados em baixo */
-    gap: 20px;
+.campo input[type="text"],
+.campo input[type="number"] {
+    background-color: var(--bg-input);
+    color: var(--text-main);
+    border: 2px solid var(--border-color);
+    border-radius: 8px;
+    padding: 0.65rem 0.85rem;
+    font-size: 0.85rem;
+    outline: none;
 }
 
-/* Quando o ecrã for largo (Computador), divide em 2 colunas */
-@media (min-width: 992px) {
+.campo input[type="text"]:focus,
+.campo input[type="number"]:focus {
+    border-color: var(--primary-accent);
+}
+
+#container-generos {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 0.5rem;
+}
+
+.btn-genero {
+    background-color: var(--bg-input);
+    color: var(--text-main);
+    border: 2px solid var(--border-color);
+    border-radius: 8px;
+    padding: 0.5rem;
+    font-size: 0.8rem;
+    font-weight: 600;
+    cursor: pointer;
+}
+
+.btn-genero.selecionado {
+    background-color: var(--primary-accent);
+    color: #ffffff;
+    border-color: var(--primary-accent);
+}
+
+/* --- BOTÕES DO FORMULÁRIO (SALVAR E MATCH) --- */
+.botoes-form {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    margin-top: 10px;
+}
+
+.btn-acao {
+    background-color: #5C6B73; /* Estilo apagado */
+    color: #ffffff;
+    border: none;
+    border-radius: 8px;
+    padding: 0.75rem;
+    font-size: 0.95rem;
+    font-weight: 800;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    transition: all 0.3s ease;
+    opacity: 0.6; /* Deixa apagado para indicar que está bloqueado */
+    cursor: not-allowed;
+}
+
+/* Quando o botão for ativado pelo JavaScript, muda para Azul petróleo */
+.btn-acao:not(:disabled) {
+    background-color: var(--primary-accent);
+    color: var(--bg-principal); /* Cor escura do fundo para dar contraste com o azul */
+    opacity: 1;
+    cursor: pointer;
+}
+
+/* 2. Pinta as bordas e o texto digitado nos inputs de azul */
+.form-completo input[type="text"],
+.form-completo input[type="number"] {
+    border-color: var(--primary-accent);
+    color: var(--primary-accent);
+}
+
+/* 3. Pinta os gêneros que estão selecionados de azul */
+.form-completo .btn-genero.selecionado {
+    background-color: var(--primary-accent);
+    border-color: var(--primary-accent);
+    color: var(--bordo-escuro); 
+}
+
+.btn-acao:not(:disabled):hover {
+    transform: scale(1.02);
+    filter: brightness(1.1);
+}
+
+/* CLASSE DE OCULTAÇÃO */
+.escondido {
+    display: none;
+}
+
+#resultados {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 1rem;
+}
+
+footer {
+    background-color: var(--bg-card);
+    border-top: 2px solid var(--border-color);
+    padding: 1rem;
+    text-align: center;
+    font-size: 0.75rem;
+    color: var(--text-muted);
+}
+
+/* Breakpoints para telas maiores */
+@media (min-width: 768px) {
+    header .logo img {
+        width: 140px;
+    }
+
+    .btn-hamburguer {
+        display: none;
+    }
+
+    nav {
+        display: block;
+        width: auto;
+        margin-top: 0;
+    }
+
+    nav ul {
+        flex-direction: row;
+        gap: 0.75rem;
+    }
+
+    nav li, nav button, nav a {
+        width: auto;
+    }
+
     main {
-        display: grid;
-        grid-template-columns: 350px 1fr; /* Perfil fixo com 350px, resultados ocupam o resto */
-        align-items: start; /* Impede que a caixa do perfil estique desnecessariamente */
+        max-width: 1200px;
+        margin: 2rem auto;
+        padding: 0 1rem;
+        gap: 2rem;
+    }
+
+    #container-generos {
+        grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
+    }
+
+    #resultados {
+        grid-template-columns: repeat(3, 1fr);
+        gap: 1.5rem;
     }
 }
 
-/* =========================================
-   CABEÇALHO DOS RESULTADOS
-   ========================================= */
-.cabecalho-resultados {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 20px;
-}
-
-.cabecalho-resultados h2 {
-    font-size: 1.2rem;
-    margin: 0;
-    padding-left: 10px;
-    border-left: 4px solid var(--verde-cinematch); /* A barrinha ciano vertical */
-}
-
-.ordenacao {
-    font-size: 0.85rem;
-    color: #ffc107; /* Amarelo/Dourado do wireframe mobile */
-    font-weight: 600;
-}
-
-/* =========================================
-   GRELHA E CARTÃO DE SÉRIE
-   ========================================= */
-.grid-series {
-    display: grid;
-    /* Cria colunas automáticas que se adaptam ao tamanho do ecrã */
-    grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
-    gap: 20px;
-}
-
-.cartao-serie {
-    background-color: var(--bg-card);
-    border: 1px solid var(--border-color);
-    border-radius: 12px;
-    overflow: hidden; /* Garante que a imagem não vaza as bordas arredondadas */
-    display: flex;
-    flex-direction: column;
-    transition: transform 0.2s ease;
-}
-
-.cartao-serie:hover {
-    transform: translateY(-5px); /* Pequena animação ao passar o rato */
-}
-
-/* =========================================
-   IMAGEM E BADGE DE MATCH
-   ========================================= */
-.capa-serie {
-    position: relative;
-    height: 140px; /* Altura padrão para a imagem */
-    width: 100%;
-}
-
-.capa-serie img {
-    width: 100%;
-    height: 100%;
-    object-fit: cover; /* Corta a imagem perfeitamente sem achatar */
-}
-
-.badge-match {
-    position: absolute;
-    top: 10px;
-    right: 10px;
-    background-color: #ffc107; /* Amarelo */
-    color: #121212;
-    padding: 4px 10px;
-    border-radius: 20px;
-    font-size: 0.75rem;
-    font-weight: 800;
-}
-
-/* =========================================
-   INFORMAÇÕES INTERNAS DO CARTÃO
-   ========================================= */
-.corpo-serie {
-    padding: 15px;
+/* --- LISTA DE PERFIS E BOTÃO DELETAR --- */
+.lista-perfis {
     display: flex;
     flex-direction: column;
     gap: 12px;
 }
 
-.corpo-serie h3 {
-    font-size: 1.1rem;
-    margin: 0;
-    font-weight: 700;
-}
-
-/* Linhas de distribuição (esquerda/direita) */
-.linha-info, .linha-afinidade {
+.item-perfil {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    font-size: 0.85rem;
+    padding: 15px 20px;
+    background-color: var(--bg-input);
+    border: 2px solid var(--border-color);
+    border-radius: 10px;
+    cursor: pointer;
+    transition: all 0.2s ease;
 }
 
-.generos-serie {
+.item-perfil:hover {
+    border-color: var(--primary-accent);
+    transform: translateX(5px);
+}
+
+.info-perfil {
+    flex-grow: 1;
+}
+
+.info-perfil strong {
+    font-size: 1.1rem;
+    color: var(--primary-accent);
+    display: block;
+}
+
+.info-perfil small {
     color: var(--text-muted);
 }
 
-.text-warning {
-    color: #ffc107;
+.btn-deletar-perfil {
+    background: transparent;
+    color: #e63946;
+    border: none;
+    font-size: 1.2rem;
+    padding: 5px 10px;
+    opacity: 0; /* Invisível por padrão */
+    cursor: pointer;
+    transition: opacity 0.2s ease, transform 0.2s ease;
+}
+
+/* Quando passa o mouse no card, o botão de deletar aparece */
+.item-perfil:hover .btn-deletar-perfil {
+    opacity: 1; 
+}
+
+.btn-deletar-perfil:hover {
+    transform: scale(1.2);
+}
+
+/* --- CLASSES DE TEXTO AUXILIARES --- */
+.subtitulo-secao {
+    font-size: 0.85rem;
+    color: var(--text-muted);
+    margin-bottom: 1rem;
+}
+
+.texto-ajuda {
+    font-size: 0.8rem;
+    color: var(--text-muted);
+    display: block; /* Garante que o small fique na sua própria linha */
+    margin-top: 0.2rem;
+}
+
+.mensagem-feedback {
+    text-align: center;
+    color: var(--text-muted);
+    font-weight: 500;
+    padding: 2rem 0; /* Dá um respiro para a mensagem não ficar colada ao topo */
 }
 
 /* =========================================
-   BADGES DE AFINIDADE (RODAPÉ DO CARTÃO)
+   SEÇÃO INICIAL (APRESENTAÇÃO E CARROSSEL)
    ========================================= */
-.badge-afinidade {
-    padding: 4px 10px;
-    border-radius: 6px;
-    font-size: 0.75rem;
-    font-weight: 600;
-    background-color: rgba(255, 255, 255, 0.05); /* Fundo muito subtil */
+#secao-inicial {
+    text-align: center;
+    padding: 2rem 0;
+    overflow: hidden; /* Evita que o carrossel crie barra de rolagem na página */
 }
 
-/* Estiliza as cores consoante o nível */
-.badge-afinidade.alta {
-    border: 1px solid #e63946; /* Vermelho/Rosa do wireframe */
-    color: #e63946;
+.hero-conteudo {
+    max-width: 600px;
+    margin: 0 auto 2rem;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 1rem;
+    padding: 0 1rem;
 }
 
-.badge-afinidade.media {
-    border: 1px solid #f4a261; /* Laranja */
-    color: #f4a261;
+.hero-conteudo h2 {
+    font-size: 2rem;
+    color: var(--primary-accent);
 }
 
-.falta-genero {
-    color: var(--text-muted);
-    font-size: 0.75rem;
+.btn-destaque {
+    background-color: var(--primary-accent);
+    color: #fff;
+    border: none;
+    padding: 1rem 2.5rem;
+    font-size: 1.1rem;
+    font-weight: 800;
+    border-radius: 50px;
+    cursor: pointer;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+    margin-top: 1rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.btn-destaque:hover {
+    transform: scale(1.05);
+    box-shadow: 0 6px 20px rgba(10, 147, 150, 0.4);
+}
+
+/* --- BANNER DESLIZANTE --- */
+.banner-series {
+    width: 100%;
+    overflow: hidden;
+    position: relative;
+    padding: 10px 0;
+    /* Cria um leve degradê nas laterais para suavizar a entrada/saída das imagens */
+    mask-image: linear-gradient(to right, transparent, black 5%, black 95%, transparent);
+    -webkit-mask-image: linear-gradient(to right, transparent, black 5%, black 95%, transparent);
+}
+
+.trilho-series {
+    display: flex;
+    gap: 15px;
+    width: max-content;
+    /* 25s determina a velocidade. Ajuste para mais rápido ou mais lento */
+    animation: rolarBanner 50s linear infinite; 
+}
+
+.card-banner {
+    width: 130px;
+    height: 195px;
+    border-radius: 8px;
+    overflow: hidden;
+    flex-shrink: 0;
+    box-shadow: 0 4px 8px rgba(0,0,0,0.3);
+}
+
+.card-banner img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+/* A animação translada 50% do trilho, pois temos 2 conjuntos idênticos de imagens */
+@keyframes rolarBanner {
+    0% { transform: translateX(0); }
+    100% { transform: translateX(-50%); }
 }
