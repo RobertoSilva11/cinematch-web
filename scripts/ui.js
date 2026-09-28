@@ -24,7 +24,8 @@ const GENEROS_ESTATICOS = [
 const generosSelecionados = new Set();
 let filtroIdiomaAtivo = false;
 let localizacaoAtiva = false;
-
+// Array para elementos com erro validação
+const elementosErro = [];
 /**
  * Renderiza os botões estáticos de gêneros
  */
@@ -178,6 +179,132 @@ export function inicializarGeolocalizacao() {
         );
     });
 }
+
+/**
+ * Renderizar e Exibir as Mensagens de Erro
+ */
+export function renderizarMensagemErro(elemento, id) {
+
+    switch (id) {
+        case 'nome':
+            // Evita criar a mesma mensagem novamente
+            if (document.getElementById(`${id}-erro`)) {
+                elemento.focus();
+                break;
+            }
+            const errorPerfilNome = document.createElement("span");
+            errorPerfilNome.id = `${id}-erro`;
+            errorPerfilNome.classList.add("msg-erro");
+            elemento.classList.add("perfil-erro");
+
+            errorPerfilNome.textContent =
+                'Nome não pode conter caracter especial, número, vários espaços e menos de 3 letras!';
+
+            elemento.after(errorPerfilNome);
+            elemento.focus();
+            break;
+
+        case 'idade':
+            // Evita criar a mesma mensagem novamente
+            if (document.getElementById(`${id}-erro`)) {
+                elemento.focus();
+                break;
+            }
+            const errorPerfilIdade = document.createElement("span");
+            errorPerfilIdade.id = `${id}-erro`;
+            errorPerfilIdade.classList.add("msg-erro");
+            elemento.classList.add("perfil-erro");
+
+            errorPerfilIdade.textContent =
+                'Idade não pode ser menor que UM(1)!';
+
+            elemento.after(errorPerfilIdade);
+            elemento.focus();
+            break;
+
+        default:
+            console.log(
+                `Nada a fazer function renderizarMensagemErro!`
+            );
+    }
+}
+
+/** 
+ * Remove as Mensagens e Classes dos Campos com Erro
+ */
+export function limparMensagensErro(elementosErro) {
+
+    elementosErro.forEach(elemento => {
+        elemento.classList.remove('perfil-erro');
+        const mensagemErro = document.getElementById(
+            `${elemento.id}-erro`
+        );
+
+        if (mensagemErro) {
+            mensagemErro.remove();
+        }
+    });
+}
+
+/**
+ * Função de chamada validações dados campos formulário perfil
+ */
+export function validarDadosFormPerfil() {
+    const nomeUsuario = document.querySelector("#nome");
+    const idadeUsuario = document.querySelector("#idade");
+    
+    // Limpa Erros de Tentativa de Salvar Perfil que Falhou
+    //console.log(`Array de erros... ${elementosErro.map(elemento => {return elemento.value})}`);
+    if (elementosErro.length > 0) {
+        limparMensagensErro(elementosErro);
+        elementosErro.length = 0; // Esvazia e Mantém o mesmo Array da const
+    }
+    // RegExp para validar o nome
+    const regexNome = /^(?=.*[A-Za-zÀ-ÿ])[A-Za-zÀ-ÿ\s]+$/;
+    // VALIDAÇÃO DO NOME
+    //console.log(regexNome.test(nomeUsuario.value.trim()));
+    if (
+        !regexNome.test(nomeUsuario.value.trim()) ||
+        nomeUsuario.value.trim().length < 3
+    ) {
+        elementosErro.push(nomeUsuario);
+        //console.log(`Array de erros... ${elementosErro.map(elemento => {return elemento.value})}`);
+        renderizarMensagemErro(
+            nomeUsuario,
+            nomeUsuario.id
+        );
+    }
+
+    // VALIDAÇÃO DA IDADE
+    if (
+        !idadeUsuario.value ||
+        Number(idadeUsuario.value) < 1
+    ) {
+        elementosErro.push(idadeUsuario);
+        renderizarMensagemErro(
+            idadeUsuario,
+            idadeUsuario.id
+        );
+    }
+    //console.log(`Array de erros... ${elementosErro.map(elemento => {return elemento.value})}`);    
+
+    // -------------------------
+    // RESULTADO
+    // -------------------------
+
+    if (
+        elementosErro.length > 0 ||
+        generosSelecionados.size === 0
+    ) {
+        elementosErro.length > 0 ? 
+            elementosErro[0].focus() 
+            : 
+            alert('Por favor, selecione pelo menos um gênero favorito.');
+        return false;
+    }
+
+    return true;
+};
 
 /**
  * Alternância de Telas (Formulário x Seleção de Perfil x Resultados x Página Inicial) e Submissão
@@ -387,6 +514,12 @@ export function configurarFormularioPerfil() {
             const nome = document.getElementById('nome').value.trim();
             const idade = document.getElementById('idade').value;
 
+            // INÍCIO CHAMADAS VALIDAÇÕES DADOS CAMPOS OBRIGATÓRIOS
+                if (!validarDadosFormPerfil()) {
+                    return;
+                }
+            // FIM CHAMADA VALIDAÇÕES DADOS 
+
             const perfilSalvo = {
                 id: perfilEditandoId || Date.now().toString(),
                 nome,
@@ -412,7 +545,7 @@ export function configurarFormularioPerfil() {
             // Nota: Só salva, não muda de ecrã. O utilizador pode clicar no botão de "Achar Meu Match" depois.
         });
     }
-
+    
     // --- SUBMISSÃO DO FORMULÁRIO ---
     if (form) {
         form.addEventListener('submit', (event) => {
@@ -420,11 +553,11 @@ export function configurarFormularioPerfil() {
             const nome = document.getElementById('nome').value.trim();
             const idade = document.getElementById('idade').value;
 
-            if (generosSelecionados.size === 0) {
-                alert('Por favor, selecione pelo menos um gênero favorito.');
-                return;
-            }
-
+            // INÍCIO CHAMADAS VALIDAÇÕES DADOS CAMPOS OBRIGATÓRIOS
+                if (!validarDadosFormPerfil()) {
+                    return;
+                }
+            // FIM CHAMADA VALIDAÇÕES DADOS   
             const perfilSalvo = {
                 id: perfilEditandoId || Date.now().toString(), // Mantém o ID antigo ou cria um novo
                 nome,
