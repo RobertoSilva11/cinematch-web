@@ -8,6 +8,7 @@
     
     --azul-petroleo: #0A9396;
     --azul-petroleo-hover: #005F73;
+    --azul-glow: rgba(10, 147, 150, 0.6);
     
     --amadeirado-claro: #E9D8A6;
 
@@ -32,6 +33,7 @@ html.light {
     --border-color: #005F73;
     --primary-accent: #0A9396;
     --secondary-accent: #DDA15E;
+    --azul-glow: rgba(0, 95, 115, 0.4);
 }
 
 /* --- RESET BÁSICO --- */
@@ -49,6 +51,68 @@ body {
     min-height: 100vh;
     display: flex;
     flex-direction: column;
+}
+
+/* SPLASH SCREEN */
+#splash-screen {
+    position: fixed;
+    inset: 0;
+    background-color: var(--bordo-escuro);
+    z-index: 9999;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    transition: opacity 0.8s ease, visibility 0.8s ease;
+}
+
+#splash-screen.esconder-splash {
+    opacity: 0;
+    visibility: hidden;
+    pointer-events: none;
+}
+
+.splash-conteudo {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 1.5rem;
+}
+
+.logo-splash {
+    max-width: 520px;
+    width: 80%;
+    height: auto;
+    animation: pulsoLogo 2s infinite ease-in-out;
+}
+
+.loader-bar {
+    width: 200px;
+    height: 4px;
+    background-color: var(--bordo-input);
+    border-radius: 4px;
+    overflow: hidden;
+    position: relative;
+}
+
+.loader-bar::after {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 0;
+    height: 100%;
+    width: 100%;
+    background-color: var(--primary-accent);
+    animation: carregarBarra 5s linear forwards;
+}
+
+@keyframes pulsoLogo {
+    0%, 100% { transform: scale(1); filter: drop-shadow(0 0 10px rgba(10, 147, 150, 0.2)); }
+    50% { transform: scale(1.05); filter: drop-shadow(0 0 25px rgba(10, 147, 150, 0.8)); }
+}
+
+@keyframes carregarBarra {
+    0% { transform: translateX(-100%); }
+    100% { transform: translateX(0); }
 }
 
 /* --- CABEÇALHO --- */
@@ -78,7 +142,6 @@ header .logo img {
     gap: 0.85rem;
 }
 
-/* Indicador de Cidade, com cor em Azul Petróleo */
 .indicador-cidade {
     display: flex;
     align-items: center;
@@ -91,12 +154,6 @@ header .logo img {
     padding: 0;
 }
 
-.indicador-cidade i {
-    color: var(--primary-accent);
-    font-size: 0.85rem;
-}
-
-/* Botão Hambúrguer */
 .btn-hamburguer {
     display: block;
     background: var(--bg-input);
@@ -108,7 +165,6 @@ header .logo img {
     cursor: pointer;
 }
 
-/* Menu Ocultado no Mobile */
 nav {
     display: none;
     width: 100%;
@@ -154,12 +210,26 @@ nav a:hover {
     border-color: var(--primary-accent);
 }
 
+/* =======================================================
+   OCULTAR BARRA DE SCROLL (ESTILO APP NATIVO)
+   ======================================================= */
+/* Chrome, Edge e Safari */
+::-webkit-scrollbar {
+    display: none;
+}
+/* Firefox e IE */
+html, body {
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+}
+
 /* --- CONTEÚDO PRINCIPAL --- */
 main {
     flex: 1;
     width: 100%;
-    margin: 1rem auto;
-    padding: 0 0.75rem;
+    /* Removemos a margem vertical (0) para não estourar os 100vh da tela */
+    margin: 0 auto; 
+    padding: 1rem 0.75rem; /* O espaçamento fica contido dentro do padding */
     display: flex;
     flex-direction: column;
     gap: 1.25rem;
@@ -234,7 +304,6 @@ form {
     border-color: var(--primary-accent);
 }
 
-/* --- BOTÕES DO FORMULÁRIO (SALVAR E MATCH) --- */
 .botoes-form {
     display: flex;
     flex-direction: column;
@@ -243,7 +312,7 @@ form {
 }
 
 .btn-acao {
-    background-color: #5C6B73; /* Estilo apagado */
+    background-color: #5C6B73;
     color: #ffffff;
     border: none;
     border-radius: 8px;
@@ -255,30 +324,15 @@ form {
     justify-content: center;
     gap: 0.5rem;
     transition: all 0.3s ease;
-    opacity: 0.6; /* Deixa apagado para indicar que está bloqueado */
+    opacity: 0.6;
     cursor: not-allowed;
 }
 
-/* Quando o botão for ativado pelo JavaScript, muda para Azul petróleo */
 .btn-acao:not(:disabled) {
     background-color: var(--primary-accent);
-    color: var(--bg-principal); /* Cor escura do fundo para dar contraste com o azul */
+    color: var(--bg-principal);
     opacity: 1;
     cursor: pointer;
-}
-
-/* 2. Pinta as bordas e o texto digitado nos inputs de azul */
-.form-completo input[type="text"],
-.form-completo input[type="number"] {
-    border-color: var(--primary-accent);
-    color: var(--primary-accent);
-}
-
-/* 3. Pinta os gêneros que estão selecionados de azul */
-.form-completo .btn-genero.selecionado {
-    background-color: var(--primary-accent);
-    border-color: var(--primary-accent);
-    color: var(--bordo-escuro); 
 }
 
 .btn-acao:not(:disabled):hover {
@@ -286,69 +340,273 @@ form {
     filter: brightness(1.1);
 }
 
-/* CLASSE DE OCULTAÇÃO */
 .escondido {
+    display: none !important;
+}
+
+/* =========================================
+   CARROSSÉIS E ESTEIRAS HORIZONTAIS
+   ========================================= */
+.secao-matchs {
+    margin-bottom: 2rem;
+}
+
+.titulo-secao-match {
+    font-size: 1.25rem;
+    color: var(--primary-accent);
+    margin-bottom: 1rem;
+    font-weight: 700;
+}
+
+.carrossel-container {
+    position: relative;
+    display: flex;
+    align-items: center;
+}
+
+.esteira-carrossel {
+    display: flex;
+    gap: 1.25rem;
+    overflow-x: auto;
+    scroll-behavior: smooth;
+    padding: 0.75rem 0.25rem;
+    width: 100%;
+    scrollbar-width: none;
+}
+
+.esteira-carrossel::-webkit-scrollbar {
     display: none;
 }
 
-#resultados {
-    display: grid;
-    grid-template-columns: 1fr;
-    gap: 1rem;
+.esteira-carrossel .card-serie {
+    min-width: 230px;
+    max-width: 230px;
+    flex-shrink: 0;
 }
 
-footer {
+.btn-carrossel {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    z-index: 10;
     background-color: var(--bg-card);
-    border-top: 2px solid var(--border-color);
+    color: var(--primary-accent);
+    border: 2px solid var(--border-color);
+    width: 42px;
+    height: 42px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.2rem;
+    cursor: pointer;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.5);
+    transition: all 0.2s ease;
+}
+
+.btn-carrossel:hover {
+    background-color: var(--primary-accent);
+    color: #ffffff;
+    border-color: var(--primary-accent);
+    transform: translateY(-50%) scale(1.1);
+}
+
+.btn-prev { left: -15px; }
+.btn-next { right: -15px; }
+
+.card-serie {
+    background-color: var(--bg-input);
+    border: 2px solid var(--border-color);
+    border-radius: 12px;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    position: relative;
+    transition: transform 0.3s ease, border-color 0.3s ease, box-shadow 0.3s ease;
+}
+
+.card-serie:hover {
+    transform: translateY(-6px);
+    border-color: var(--primary-accent);
+    box-shadow: 0 8px 25px var(--azul-glow);
+}
+
+.badge-match {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    background-color: var(--primary-accent);
+    color: #ffffff;
+    font-weight: 800;
+    font-size: 0.8rem;
+    padding: 0.3rem 0.65rem;
+    border-radius: 20px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.5);
+    z-index: 2;
+}
+
+.img-poster {
+    width: 100%;
+    height: 300px;
+    object-fit: cover;
+    display: block;
+}
+
+.conteudo-card {
     padding: 1rem;
-    text-align: center;
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+    gap: 0.5rem;
+}
+
+.conteudo-card h3 {
+    font-size: 1.1rem;
+    color: var(--text-main);
+}
+
+.generos-card {
     font-size: 0.75rem;
+    color: var(--primary-accent);
+    font-weight: 600;
+}
+
+.sinopse-card {
+    font-size: 0.8rem;
     color: var(--text-muted);
+    flex: 1;
+    line-height: 1.35;
 }
 
-/* Breakpoints para telas maiores */
-@media (min-width: 768px) {
-    header .logo img {
-        width: 140px;
-    }
-
-    .btn-hamburguer {
-        display: none;
-    }
-
-    nav {
-        display: block;
-        width: auto;
-        margin-top: 0;
-    }
-
-    nav ul {
-        flex-direction: row;
-        gap: 0.75rem;
-    }
-
-    nav li, nav button, nav a {
-        width: auto;
-    }
-
-    main {
-        max-width: 1200px;
-        margin: 2rem auto;
-        padding: 0 1rem;
-        gap: 2rem;
-    }
-
-    #container-generos {
-        grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
-    }
-
-    #resultados {
-        grid-template-columns: repeat(3, 1fr);
-        gap: 1.5rem;
-    }
+.rodape-card {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 0.5rem;
+    padding-top: 0.5rem;
+    border-top: 1px solid var(--border-color);
 }
 
-/* --- LISTA DE PERFIS E BOTÃO DELETAR --- */
+.nota-card {
+    font-size: 0.8rem;
+    font-weight: 700;
+    color: var(--secondary-accent);
+}
+
+.btn-detalhes {
+    font-size: 0.75rem;
+    color: var(--primary-accent);
+    text-decoration: none;
+    font-weight: 700;
+}
+
+.btn-detalhes:hover {
+    text-decoration: underline;
+}
+
+.container-busca-avancada {
+    display: flex;
+    justify-content: center;
+    margin-top: 2rem;
+}
+
+/* MODAL DE BUSCA AVANÇADA */
+.modal-overlay {
+    position: fixed;
+    inset: 0;
+    background-color: rgba(0, 0, 0, 0.85);
+    backdrop-filter: blur(5px);
+    z-index: 9000;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 1.5rem;
+}
+
+.modal-conteudo {
+    background-color: var(--bg-card);
+    border: 2px solid var(--border-color);
+    border-radius: 16px;
+    width: 100%;
+    max-width: 1000px;
+    max-height: 90vh;
+    display: flex;
+    flex-direction: column;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.8);
+    overflow: hidden;
+}
+
+.modal-header {
+    padding: 1.25rem;
+    border-bottom: 2px solid var(--border-color);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.modal-header h2 {
+    font-size: 1.2rem;
+    color: var(--primary-accent);
+    margin: 0;
+}
+
+.btn-fechar-modal {
+    background: transparent;
+    border: none;
+    color: var(--text-muted);
+    font-size: 1.3rem;
+    cursor: pointer;
+    transition: color 0.2s ease;
+}
+
+.btn-fechar-modal:hover {
+    color: #e63946;
+}
+
+.modal-body {
+    padding: 1.25rem;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+    gap: 1.25rem;
+}
+
+.caixa-busca {
+    position: relative;
+    width: 100%;
+}
+
+.icone-busca {
+    position: absolute;
+    left: 1rem;
+    top: 50%;
+    transform: translateY(-50%);
+    color: var(--primary-accent);
+    font-size: 1.1rem;
+}
+
+.caixa-busca input {
+    width: 100%;
+    padding: 0.85rem 1rem 0.85rem 2.8rem;
+    background-color: var(--bg-input);
+    border: 2px solid var(--border-color);
+    border-radius: 10px;
+    color: var(--text-main);
+    font-size: 0.95rem;
+    outline: none;
+}
+
+.caixa-busca input:focus {
+    border-color: var(--primary-accent);
+}
+
+.grid-busca-avancada {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    gap: 1.25rem;
+}
+
+/* LISTA DE PERFIS E OUTROS */
 .lista-perfis {
     display: flex;
     flex-direction: column;
@@ -369,11 +627,8 @@ footer {
 
 .item-perfil:hover {
     border-color: var(--primary-accent);
+    box-shadow: 0 4px 15px var(--azul-glow);
     transform: translateX(5px);
-}
-
-.info-perfil {
-    flex-grow: 1;
 }
 
 .info-perfil strong {
@@ -392,62 +647,52 @@ footer {
     border: none;
     font-size: 1.2rem;
     padding: 5px 10px;
-    opacity: 0; /* Invisível por padrão */
+    opacity: 0;
     cursor: pointer;
     transition: opacity 0.2s ease, transform 0.2s ease;
 }
 
-/* Quando passa o mouse no card, o botão de deletar aparece */
 .item-perfil:hover .btn-deletar-perfil {
     opacity: 1; 
 }
 
-.btn-deletar-perfil:hover {
-    transform: scale(1.2);
-}
-
-/* --- CLASSES DE TEXTO AUXILIARES --- */
 .subtitulo-secao {
-    font-size: 0.85rem;
+    font-size: clamp(0.8rem, 2vw, 0.85rem);
     color: var(--text-muted);
-    margin-bottom: 1rem;
-}
-
-.texto-ajuda {
-    font-size: 0.8rem;
-    color: var(--text-muted);
-    display: block; /* Garante que o small fique na sua própria linha */
-    margin-top: 0.2rem;
+    margin-bottom: 0.5rem;
 }
 
 .mensagem-feedback {
     text-align: center;
     color: var(--text-muted);
     font-weight: 500;
-    padding: 2rem 0; /* Dá um respiro para a mensagem não ficar colada ao topo */
+    padding: 2rem 0;
 }
 
-/* =========================================
-   SEÇÃO INICIAL (APRESENTAÇÃO E CARROSSEL)
-   ========================================= */
+/* SEÇÃO INICIAL E CARROSSEL */
+
 #secao-inicial {
-    text-align: center;
-    padding: 2rem 0;
-    overflow: hidden; /* Evita que o carrossel crie barra de rolagem na página */
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    flex: 1; 
+    padding: 1rem 0;
+    overflow: hidden;
 }
 
 .hero-conteudo {
     max-width: 600px;
-    margin: 0 auto 2rem;
+    margin: 0 auto 1.5rem; /* Margem reduzida para não empurrar o layout */
     display: flex;
     flex-direction: column;
     align-items: center;
     gap: 1rem;
     padding: 0 1rem;
+    text-align: center;
 }
 
 .hero-conteudo h2 {
-    font-size: 2rem;
+    font-size: clamp(1.5rem, 4vw, 2rem);
     color: var(--primary-accent);
 }
 
@@ -469,35 +714,46 @@ footer {
 
 .btn-destaque:hover {
     transform: scale(1.05);
-    box-shadow: 0 6px 20px rgba(10, 147, 150, 0.4);
+    box-shadow: 0 6px 20px var(--azul-glow);
 }
 
-/* --- BANNER DESLIZANTE --- */
 .banner-series {
     width: 100%;
     overflow: hidden;
     position: relative;
     padding: 10px 0;
-    /* Cria um leve degradê nas laterais para suavizar a entrada/saída das imagens */
     mask-image: linear-gradient(to right, transparent, black 5%, black 95%, transparent);
     -webkit-mask-image: linear-gradient(to right, transparent, black 5%, black 95%, transparent);
 }
 
 .trilho-series {
     display: flex;
-    gap: 15px;
+    gap: 15px; 
     width: max-content;
-    /* 25s determina a velocidade. Ajuste para mais rápido ou mais lento */
-    animation: rolarBanner 50s linear infinite; 
+    animation: rolarBanner 80s linear infinite; 
+}
+
+.banner-series:hover .trilho-series {
+    animation-play-state: paused;
 }
 
 .card-banner {
-    width: 130px;
-    height: 195px;
+    /* CLAMP: O tamanho varia de acordo com a altura da tela (vh). 
+       Se a tela for baixa, a imagem encolhe para não forçar scroll! */
+    width: clamp(100px, 15vw, 140px);
+    height: clamp(150px, 25vh, 210px); 
     border-radius: 8px;
     overflow: hidden;
     flex-shrink: 0;
-    box-shadow: 0 4px 8px rgba(0,0,0,0.3);
+    box-shadow: 0 4px 10px rgba(0,0,0,0.4);
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    cursor: pointer;
+}
+
+.card-banner:hover {
+    transform: scale(1.08);
+    box-shadow: 0 8px 25px var(--azul-glow);
+    z-index: 2;
 }
 
 .card-banner img {
@@ -506,8 +762,62 @@ footer {
     object-fit: cover;
 }
 
-/* A animação translada 50% do trilho, pois temos 2 conjuntos idênticos de imagens */
 @keyframes rolarBanner {
     0% { transform: translateX(0); }
     100% { transform: translateX(-50%); }
+}
+
+footer {
+    background-color: var(--bg-card);
+    border-top: 2px solid var(--border-color);
+    padding: 1rem;
+    text-align: center;
+    font-size: 0.75rem;
+    color: var(--text-muted);
+}
+
+.mt-4 { margin-top: 1.5rem; }
+
+/* Responsive */
+@media (min-width: 768px) {
+    header .logo img { width: 140px; }
+    .btn-hamburguer { display: none; }
+    nav { display: block; width: auto; margin-top: 0; }
+    nav ul { flex-direction: row; gap: 0.75rem; }
+    nav li, nav button, nav a { width: auto; }
+    main { max-width: 1200px; margin: 2rem auto; padding: 0 1rem; gap: 2rem; }
+    #container-generos { grid-template-columns: repeat(auto-fit, minmax(130px, 1fr)); }
+}
+
+/* =======================================================
+   NUKING THE GOOGLE TRANSLATE BAR (Versão Definitiva)
+   ======================================================= */
+/* Esconde o iframe da barra superior (classes antigas e novas) */
+.goog-te-banner-frame,
+.VIpgJd-ZVi9od-aZ2wEe-wOHMyf,
+.VIpgJd-ZVi9od-ORHb-OEVmcd,
+body > .skiptranslate > iframe.skiptranslate {
+    display: none !important;
+    visibility: hidden !important;
+}
+
+/* Oculta qualquer bloco de tradução filho direto do body (exceto o nosso site) */
+body > .skiptranslate {
+    display: none !important;
+}
+
+/* Força a página a ficar colada no topo, ignorando o Google */
+body {
+    top: 0 !important;
+    position: static !important;
+    min-height: 100vh !important;
+}
+
+/* Remove os balões de foco irritantes ao passar o rato no texto */
+#goog-gt-tt, .goog-te-balloon-frame { 
+    display: none !important; 
+}
+.goog-text-highlight { 
+    background: none !important; 
+    box-shadow: none !important; 
 }

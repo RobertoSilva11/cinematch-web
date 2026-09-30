@@ -1,3 +1,5 @@
+import { MatchCalculator } from './modelo.js';
+
 const GENEROS_ESTATICOS = [
     { label: 'Ação', value: 'Action' },
     { label: 'Aventura', value: 'Adventure' },
@@ -24,8 +26,35 @@ const GENEROS_ESTATICOS = [
 const generosSelecionados = new Set();
 let filtroIdiomaAtivo = false;
 let localizacaoAtiva = false;
-// Array para elementos com erro validação
 const elementosErro = [];
+
+// Cache de catálogo estático e dicionário local de sinopses para evitar falhas de rede/API externa
+let catalogoCompletoCache = [];
+
+const TRADUCOES_LOCAL = {
+    "Under the Dome": "Quando uma pequena cidade é subitamente isolada do resto do mundo por um domo transparente e impenetrável, os moradores precisam sobreviver aos segredos e ao caos.",
+    "Person of Interest": "Um ex-agente da CIA e um programador misterioso se unem para prevenir crimes violentos em Nova York utilizando uma inteligência artificial avançada.",
+    "Bitten": "Uma lobisomem mulher tenta viver uma vida normal como fotógrafa em Toronto, mas precisa retornar à sua alcateia para defender sua família.",
+    "Arrow": "Após um naufrágio, o bilionário Oliver Queen passa cinco anos em uma ilha misteriosa antes de retornar para combater o crime em sua cidade como um arqueiro vigilante.",
+    "True Detective": "Série de antologia policial onde detetives investigam crimes obscuros e segredos perturbadores que assombram suas vidas pessoais e profissionais.",
+    "The 100": "Cem jovens detentos são enviados de volta à Terra quase um século após um apocalipse nuclear para testar se o planeta voltou a ser habitável.",
+    "Gotham": "A história da ascensão do detetive James Gordon em uma cidade dominada pelo crime, acompanhando a origem dos mais famosos vilões e do jovem Bruce Wayne.",
+    "The Flash": "Após ser atingido por um raio e banhado por produtos químicos, Barry Allen ganha a capacidade de se mover em supervelocidade e protege Central City.",
+    "Supernatural": "Dois irmãos viajam pelos Estados Unidos caçando monstros, fantasmas, demônios e outras criaturas sobrenaturais enquanto enfrentam ameaças celestiais e do inferno."
+};
+
+/**
+ * Retorna a sinopse original sem tags HTML. A tradução será feita pelo navegador.
+ */
+function obterSinopse(serie) {
+    if (!serie.summary) return 'Sinopse indisponível.';
+    
+    // Retira as tags <p>, <b>, etc., que vêm da API
+    const textoLimpo = serie.summary.replace(/<[^>]*>?/gm, '');
+
+    return textoLimpo.length > 130 ? textoLimpo.slice(0, 130) + '...' : textoLimpo;
+}
+
 /**
  * Renderiza os botões estáticos de gêneros
  */
@@ -115,7 +144,52 @@ export function inicializarMenuHamburguer() {
 }
 
 /**
- * Botão On/Off de Localização no Menu
+ * Simula um clique invisível no widget do Google Tradutor e extermina a barra branca
+ */
+function forcarTraducaoGoogle(ativar) {
+    const selectBox = document.querySelector('.goog-te-combo');
+
+    if (ativar) {
+        if (selectBox) {
+            selectBox.value = 'pt';
+            selectBox.dispatchEvent(new Event('change'));
+        }
+    } else {
+        // 1. Tenta reverter definindo o idioma alvo de volta para o original ('en')
+        if (selectBox) {
+            selectBox.value = 'en'; 
+            selectBox.dispatchEvent(new Event('change'));
+        }
+
+        // 2. Tenta acionar o botão oculto "Show Original" dentro da estrutura do Google
+        try {
+            const iframe = document.querySelector('.goog-te-banner-frame, body > .skiptranslate > iframe');
+            if (iframe) {
+                const innerDoc = iframe.contentDocument || iframe.contentWindow.document;
+                const btnRestore = innerDoc.getElementById('restore') || innerDoc.querySelector('button[id*="restore"]');
+                if (btnRestore) btnRestore.click();
+            }
+        } catch (erro) {
+            // Ignora bloqueios de segurança do navegador (CORS) caso o iframe seja protegido
+        }
+
+        // 3. Destrói o cookie de memória do Google Tradutor
+        document.cookie = "googtrans=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
+        document.cookie = "googtrans=; expires=Thu, 01 Jan 1970 00:00:00 UTC; domain=" + location.hostname + "; path=/;";
+    }
+
+    // Mantém a vigilância contra a barra branca intrusiva
+    setTimeout(() => {
+        document.body.style.top = '0px';
+        const barraGoogle = document.querySelector('.goog-te-banner-frame, .skiptranslate > iframe, .VIpgJd-ZVi9od-aZ2wEe-wOHMyf');
+        if (barraGoogle) {
+            barraGoogle.style.display = 'none';
+        }
+    }, 500);
+}
+
+/**
+ * Botão On/Off de Localização com Gatilho de Tradução Instantânea
  */
 export function inicializarGeolocalizacao() {
     const btnGeo = document.getElementById('btn-geolocalizacao');
@@ -126,15 +200,19 @@ export function inicializarGeolocalizacao() {
     if (!btnGeo) return;
 
     btnGeo.addEventListener('click', () => {
+        // SE ESTIVER ATIVADO -> VAMOS DESATIVAR
         if (localizacaoAtiva) {
             localizacaoAtiva = false;
-            filtroIdiomaAtivo = false;
-
+            
             if (indicadorCidade) indicadorCidade.classList.add('escondido');
             if (textoBtnGeo) textoBtnGeo.textContent = 'Ativar Localização';
+            
+            // Reverte a tradução imediatamente
+            forcarTraducaoGoogle(false);
             return;
         }
 
+        // SE ESTIVER DESATIVADO -> VAMOS ATIVAR
         if (!navigator.geolocation) {
             alert('Geolocalização não é suportada pelo seu navegador.');
             return;
@@ -157,23 +235,24 @@ export function inicializarGeolocalizacao() {
 
                     if (textoCidade) textoCidade.textContent = `${cidade}${estado}`;
                     localizacaoAtiva = true;
-                    filtroIdiomaAtivo = true;
-
                     if (textoBtnGeo) textoBtnGeo.textContent = 'Desativar Localização';
+                    
+                    // Dispara a tradução imediatamente para Português!
+                    forcarTraducaoGoogle(true);
+                    
                 } catch (erro) {
                     if (textoCidade) textoCidade.textContent = 'Localização Ativa';
                     localizacaoAtiva = true;
-                    filtroIdiomaAtivo = true;
-
                     if (textoBtnGeo) textoBtnGeo.textContent = 'Desativar Localização';
+                    
+                    // Mesmo se a API de mapas falhar, a tradução acontece
+                    forcarTraducaoGoogle(true);
                 }
             },
             () => {
                 alert('Não foi possível obter a sua localização.');
                 if (indicadorCidade) indicadorCidade.classList.add('escondido');
                 localizacaoAtiva = false;
-                filtroIdiomaAtivo = false;
-
                 if (textoBtnGeo) textoBtnGeo.textContent = 'Ativar Localização';
             }
         );
@@ -184,10 +263,8 @@ export function inicializarGeolocalizacao() {
  * Renderizar e Exibir as Mensagens de Erro
  */
 export function renderizarMensagemErro(elemento, id) {
-
     switch (id) {
         case 'nome':
-            // Evita criar a mesma mensagem novamente
             if (document.getElementById(`${id}-erro`)) {
                 elemento.focus();
                 break;
@@ -197,15 +274,13 @@ export function renderizarMensagemErro(elemento, id) {
             errorPerfilNome.classList.add("msg-erro");
             elemento.classList.add("perfil-erro");
 
-            errorPerfilNome.textContent =
-                'Nome não pode conter caracter especial, número, vários espaços e menos de 3 letras!';
+            errorPerfilNome.textContent = 'Nome não pode conter caracter especial, número, vários espaços e menos de 3 letras!';
 
             elemento.after(errorPerfilNome);
             elemento.focus();
             break;
 
         case 'idade':
-            // Evita criar a mesma mensagem novamente
             if (document.getElementById(`${id}-erro`)) {
                 elemento.focus();
                 break;
@@ -215,17 +290,14 @@ export function renderizarMensagemErro(elemento, id) {
             errorPerfilIdade.classList.add("msg-erro");
             elemento.classList.add("perfil-erro");
 
-            errorPerfilIdade.textContent =
-                'Idade não pode ser menor que UM(1)!';
+            errorPerfilIdade.textContent = 'Idade não pode ser menor que UM(1)!';
 
             elemento.after(errorPerfilIdade);
             elemento.focus();
             break;
 
         default:
-            console.log(
-                `Nada a fazer function renderizarMensagemErro!`
-            );
+            console.log(`Nada a fazer na função renderizarMensagemErro!`);
     }
 }
 
@@ -233,12 +305,9 @@ export function renderizarMensagemErro(elemento, id) {
  * Remove as Mensagens e Classes dos Campos com Erro
  */
 export function limparMensagensErro(elementosErro) {
-
     elementosErro.forEach(elemento => {
         elemento.classList.remove('perfil-erro');
-        const mensagemErro = document.getElementById(
-            `${elemento.id}-erro`
-        );
+        const mensagemErro = document.getElementById(`${elemento.id}-erro`);
 
         if (mensagemErro) {
             mensagemErro.remove();
@@ -247,67 +316,209 @@ export function limparMensagensErro(elementosErro) {
 }
 
 /**
- * Função de chamada validações dados campos formulário perfil
+ * Função de validação dos campos do formulário
  */
 export function validarDadosFormPerfil() {
     const nomeUsuario = document.querySelector("#nome");
     const idadeUsuario = document.querySelector("#idade");
     
-    // Limpa Erros de Tentativa de Salvar Perfil que Falhou
-    //console.log(`Array de erros... ${elementosErro.map(elemento => {return elemento.value})}`);
     if (elementosErro.length > 0) {
         limparMensagensErro(elementosErro);
-        elementosErro.length = 0; // Esvazia e Mantém o mesmo Array da const
+        elementosErro.length = 0;
     }
-    // RegExp para validar o nome
+
     const regexNome = /^(?=.*[A-Za-zÀ-ÿ])[A-Za-zÀ-ÿ\s]+$/;
-    // VALIDAÇÃO DO NOME
-    //console.log(regexNome.test(nomeUsuario.value.trim()));
-    if (
-        !regexNome.test(nomeUsuario.value.trim()) ||
-        nomeUsuario.value.trim().length < 3
-    ) {
+
+    if (!regexNome.test(nomeUsuario.value.trim()) || nomeUsuario.value.trim().length < 3) {
         elementosErro.push(nomeUsuario);
-        //console.log(`Array de erros... ${elementosErro.map(elemento => {return elemento.value})}`);
-        renderizarMensagemErro(
-            nomeUsuario,
-            nomeUsuario.id
-        );
+        renderizarMensagemErro(nomeUsuario, nomeUsuario.id);
     }
 
-    // VALIDAÇÃO DA IDADE
-    if (
-        !idadeUsuario.value ||
-        Number(idadeUsuario.value) < 1
-    ) {
+    if (!idadeUsuario.value || Number(idadeUsuario.value) < 1) {
         elementosErro.push(idadeUsuario);
-        renderizarMensagemErro(
-            idadeUsuario,
-            idadeUsuario.id
-        );
+        renderizarMensagemErro(idadeUsuario, idadeUsuario.id);
     }
-    //console.log(`Array de erros... ${elementosErro.map(elemento => {return elemento.value})}`);    
 
-    // -------------------------
-    // RESULTADO
-    // -------------------------
-
-    if (
-        elementosErro.length > 0 ||
-        generosSelecionados.size === 0
-    ) {
-        elementosErro.length > 0 ? 
-            elementosErro[0].focus() 
-            : 
-            alert('Por favor, selecione pelo menos um gênero favorito.');
+    if (elementosErro.length > 0 || generosSelecionados.size === 0) {
+        elementosErro.length > 0 ? elementosErro[0].focus() : alert('Por favor, selecione pelo menos um gênero favorito.');
         return false;
     }
 
     return true;
-};
+}
 
 /**
- * Alternância de Telas (Formulário x Seleção de Perfil x Resultados x Página Inicial) e Submissão
+ * Cria o elemento HTML de um Card de Série
+ */
+function criarCardSerie(serie) {
+    const card = document.createElement('article');
+    card.className = 'card-serie';
+
+    const imagemPoster = serie.image?.medium || serie.image?.original || 'https://via.placeholder.com/210x295?text=Sem+Capa';
+    const nota = serie.rating?.average ? `${serie.rating.average} / 10` : 'N/A';
+    const sinopseExibicao = obterSinopse(serie);
+
+    card.innerHTML = `
+        <div class="badge-match ${serie.match >= 50 ? 'match-alto' : 'match-medio'} notranslate">
+            ${serie.match}% Match
+        </div>
+        <img src="${imagemPoster}" alt="Poster de ${serie.name}" loading="lazy" class="img-poster">
+        <div class="conteudo-card">
+            <h3>${serie.name}</h3>
+            <p class="generos-card">${(serie.genres || []).join(' • ')}</p>
+            <p class="sinopse-card">${sinopseExibicao}</p>
+            <div class="rodape-card">
+                <span class="nota-card"><i class="bi bi-star-fill"></i> ${nota}</span>
+                <a href="${serie.url}" target="_blank" rel="noopener noreferrer" class="btn-detalhes">
+                    Ver Mais <i class="bi bi-box-arrow-up-right"></i>
+                </a>
+            </div>
+        </div>
+    `;
+
+    return card;
+}
+
+/**
+ * Consome a API do TVMaze, separa em duas seções de recomendação com carrossel
+ */
+export async function carregarERenderizarSeries() {
+    const esteiraAlto = document.getElementById('esteira-match-alto');
+    const esteiraMedio = document.getElementById('esteira-match-medio');
+    const tituloAlto = document.getElementById('titulo-match-alto');
+
+    if (!esteiraAlto || !esteiraMedio) return;
+
+    const perfilAtivo = JSON.parse(localStorage.getItem('cineMatch_perfil_ativo'));
+
+    if (!perfilAtivo || !perfilAtivo.generos || perfilAtivo.generos.length === 0) {
+        esteiraAlto.innerHTML = '<p class="mensagem-feedback">Nenhum perfil ativo encontrado. Por favor, crie ou selecione um perfil.</p>';
+        return;
+    }
+
+    if (tituloAlto) {
+        tituloAlto.textContent = `${perfilAtivo.nome}, escolha o match ideal que encontramos para você:`;
+    }
+
+    try {
+        esteiraAlto.innerHTML = '<p class="mensagem-feedback"><i class="bi bi-arrow-repeat spin"></i> Buscando recomendações no catálogo...</p>';
+        esteiraMedio.innerHTML = '';
+
+        if (catalogoCompletoCache.length === 0) {
+            const resposta = await fetch('https://api.tvmaze.com/shows');
+            if (!resposta.ok) throw new Error('Falha ao conectar à API de séries.');
+            catalogoCompletoCache = await resposta.json();
+        }
+
+        let series = [...catalogoCompletoCache];
+
+        // Calcula o % de Match e ordena de forma decrescente
+        const seriesComMatch = series.map(serie => {
+            const percentualMatch = MatchCalculator.calcularMatch(perfilAtivo.generos, serie.genres || []);
+            return { ...serie, match: percentualMatch };
+        }).sort((a, b) => b.match - a.match);
+
+        // Separação em duas categorias (Match >= 50% e Match < 50%)
+        const maiorCompatibilidade = seriesComMatch.filter(s => s.match >= 50);
+        const menosRecomendadas = seriesComMatch.filter(s => s.match < 50);
+
+        esteiraAlto.innerHTML = '';
+        esteiraMedio.innerHTML = '';
+
+        // Renderiza Seção 1
+        if (maiorCompatibilidade.length === 0) {
+            esteiraAlto.innerHTML = '<p class="mensagem-feedback">Nenhuma série com alta compatibilidade para os gêneros escolhidos.</p>';
+        } else {
+            maiorCompatibilidade.forEach(serie => {
+                esteiraAlto.appendChild(criarCardSerie(serie));
+            });
+        }
+
+        // Renderiza Seção 2
+        menosRecomendadas.forEach(serie => {
+            esteiraMedio.appendChild(criarCardSerie(serie));
+        });
+
+        configurarControlesCarrossel();
+        configurarModalBuscaAvancada();
+
+    } catch (erro) {
+        console.error('Erro ao carregar séries:', erro);
+        esteiraAlto.innerHTML = '<p class="mensagem-feedback" style="color: #e63946;">Erro ao carregar os dados da API TVMaze. Tente novamente mais tarde.</p>';
+    }
+}
+
+/**
+ * Ativa a rolagem horizontal nos botões de prev e next
+ */
+function configurarControlesCarrossel() {
+    const btnPrevAlto = document.getElementById('btn-prev-alto');
+    const btnNextAlto = document.getElementById('btn-next-alto');
+    const esteiraAlto = document.getElementById('esteira-match-alto');
+
+    const btnPrevMedio = document.getElementById('btn-prev-medio');
+    const btnNextMedio = document.getElementById('btn-next-medio');
+    const esteiraMedio = document.getElementById('esteira-match-medio');
+
+    if (btnPrevAlto && btnNextAlto && esteiraAlto) {
+        btnPrevAlto.onclick = () => esteiraAlto.scrollBy({ left: -400, behavior: 'smooth' });
+        btnNextAlto.onclick = () => esteiraAlto.scrollBy({ left: 400, behavior: 'smooth' });
+    }
+
+    if (btnPrevMedio && btnNextMedio && esteiraMedio) {
+        btnPrevMedio.onclick = () => esteiraMedio.scrollBy({ left: -400, behavior: 'smooth' });
+        btnNextMedio.onclick = () => esteiraMedio.scrollBy({ left: 400, behavior: 'smooth' });
+    }
+}
+
+/**
+ * Inicializa a funcionalidade do Modal de Busca Avançada
+ */
+function configurarModalBuscaAvancada() {
+    const btnAbrir = document.getElementById('btn-abrir-busca-avancada');
+    const btnFechar = document.getElementById('btn-fechar-busca-avancada');
+    const modal = document.getElementById('modal-busca-avancada');
+    const inputBusca = document.getElementById('input-busca-avancada');
+    const containerResultados = document.getElementById('resultados-busca-avancada');
+
+    if (!btnAbrir || !modal || !inputBusca || !containerResultados) return;
+
+    const renderizarBusca = (filtro = '') => {
+        containerResultados.innerHTML = '';
+        const termo = filtro.toLowerCase().trim();
+
+        const filtradas = catalogoCompletoCache.filter(serie => 
+            serie.name.toLowerCase().includes(termo)
+        );
+
+        if (filtradas.length === 0) {
+            containerResultados.innerHTML = '<p class="mensagem-feedback">Nenhuma série encontrada com esse nome.</p>';
+            return;
+        }
+
+        filtradas.forEach(serie => {
+            containerResultados.appendChild(criarCardSerie(serie));
+        });
+    };
+
+    btnAbrir.onclick = () => {
+        modal.classList.remove('escondido');
+        inputBusca.value = '';
+        renderizarBusca();
+        inputBusca.focus();
+    };
+
+    btnFechar.onclick = () => {
+        modal.classList.add('escondido');
+    };
+
+    inputBusca.oninput = (e) => {
+        renderizarBusca(e.target.value);
+    };
+}
+
+/**
+ * Alternância de Telas e Submissão
  */
 export function configurarFormularioPerfil() {
     const form = document.getElementById('form-perfil');
@@ -315,27 +526,20 @@ export function configurarFormularioPerfil() {
     const secaoResultados = document.getElementById('secao-resultados');
     const secaoSelecaoPerfil = document.getElementById('secao-selecao-perfil');
     const listaPerfis = document.getElementById('lista-perfis');
-    
-    // NOVO: Captura da Seção Inicial
     const secaoInicial = document.getElementById('secao-inicial'); 
     
     const btnTrocarPerfil = document.getElementById('btn-trocar-perfil');
     const btnCriarPerfil = document.getElementById('btn-criar-perfil');
-
-    // CAPTURA PARA VALIDAÇÃO DO FORMULÁRIO
     const btnSalvarPerfil = document.getElementById('btn-salvar-perfil');
     const inputNome = document.getElementById('nome');
     const inputIdade = document.getElementById('idade');
     
-    // Adiciona o "olheiro" para cada vez que o utilizador digitar algo
     if (inputNome) inputNome.addEventListener('input', validarFormulario);
     if (inputIdade) inputIdade.addEventListener('input', validarFormulario);
     
-    // NOVO: Captura dos novos botões
     const btnHeroCriar = document.getElementById('btn-hero-criar'); 
     const btnPaginaInicial = document.getElementById('btn-pagina-inicial'); 
     
-    // Variável para saber se estamos a editar um perfil existente ou a criar um novo
     let perfilEditandoId = null;
 
     function obterPerfisSalvos() {
@@ -346,7 +550,6 @@ export function configurarFormularioPerfil() {
         localStorage.setItem('cineMatch_perfis', JSON.stringify(perfis));
     }
 
-    // NOVO: Função para exibir apenas a Página Inicial (Hero)
     function abrirPaginaInicial() {
         if (secaoSelecaoPerfil) secaoSelecaoPerfil.classList.add('escondido');
         if (secaoResultados) secaoResultados.classList.add('escondido');
@@ -354,17 +557,15 @@ export function configurarFormularioPerfil() {
         if (secaoInicial) secaoInicial.classList.remove('escondido');
     }
 
-    // ATUALIZADO: Comportamento do botão "Criar Perfil" (Formulário Vazio)
     function abrirFormularioVazio() {
         if (secaoSelecaoPerfil) secaoSelecaoPerfil.classList.add('escondido');
         if (secaoResultados) secaoResultados.classList.add('escondido');
-        if (secaoInicial) secaoInicial.classList.add('escondido'); // Esconde a Home
+        if (secaoInicial) secaoInicial.classList.add('escondido');
         if (secaoPerfil) secaoPerfil.classList.remove('escondido');
         
-        perfilEditandoId = null; // Zera o ID
+        perfilEditandoId = null;
         if (form) form.reset();
         
-        // Limpa os gêneros selecionados no JS e na tela
         generosSelecionados.clear();
         document.querySelectorAll('.btn-genero').forEach(btn => btn.classList.remove('selecionado'));
         const inputHidden = document.getElementById('generos-selecionados');
@@ -373,18 +574,16 @@ export function configurarFormularioPerfil() {
         validarFormulario();
     }
 
-    // ATUALIZADO: Comportamento ao clicar num perfil existente na lista (Preencher o Form)
     function preencherFormulario(perfil) {
         if (secaoSelecaoPerfil) secaoSelecaoPerfil.classList.add('escondido');
         if (secaoResultados) secaoResultados.classList.add('escondido');
-        if (secaoInicial) secaoInicial.classList.add('escondido'); // Esconde a Home
+        if (secaoInicial) secaoInicial.classList.add('escondido');
         if (secaoPerfil) secaoPerfil.classList.remove('escondido');
         
-        perfilEditandoId = perfil.id; // Guarda o ID para atualizar e não duplicar
+        perfilEditandoId = perfil.id;
         document.getElementById('nome').value = perfil.nome;
         document.getElementById('idade').value = perfil.idade;
         
-        // Sincroniza os gêneros guardados com os botões da interface
         generosSelecionados.clear();
         perfil.generos.forEach(g => generosSelecionados.add(g));
         
@@ -402,19 +601,16 @@ export function configurarFormularioPerfil() {
         validarFormulario();
     }
 
-    // Comportamento do botão de Deletar (Lixeira)
     function deletarPerfil(idParaDeletar) {
         let perfis = obterPerfisSalvos();
         perfis = perfis.filter(p => p.id !== idParaDeletar);
         salvarPerfis(perfis);
-        abrirSelecaoDePerfis(); // Recarrega a lista
+        abrirSelecaoDePerfis();
     }
 
-    // ATUALIZADO: Comportamento do botão "Trocar Perfil"
     function abrirSelecaoDePerfis() {
         const perfis = obterPerfisSalvos();
         
-        // Se a lista estiver vazia, vai para a Página Inicial
         if (perfis.length === 0) {
             abrirPaginaInicial();
             return;
@@ -422,10 +618,10 @@ export function configurarFormularioPerfil() {
 
         if (secaoPerfil) secaoPerfil.classList.add('escondido');
         if (secaoResultados) secaoResultados.classList.add('escondido');
-        if (secaoInicial) secaoInicial.classList.add('escondido'); // Esconde a Home
+        if (secaoInicial) secaoInicial.classList.add('escondido');
         if (secaoSelecaoPerfil) secaoSelecaoPerfil.classList.remove('escondido');
         
-        listaPerfis.innerHTML = ''; // Limpa antes de injetar
+        listaPerfis.innerHTML = '';
         
         perfis.forEach(perfil => {
             const divItem = document.createElement('div');
@@ -434,7 +630,6 @@ export function configurarFormularioPerfil() {
             const divInfo = document.createElement('div');
             divInfo.className = 'info-perfil';
             divInfo.innerHTML = `<strong>${perfil.nome}</strong> <small>${perfil.idade} anos • ${perfil.generos.length} gêneros favoritados</small>`;
-            // Ao clicar na linha, carrega os dados no formulário
             divInfo.onclick = () => preencherFormulario(perfil);
 
             const btnDeletar = document.createElement('button');
@@ -442,7 +637,7 @@ export function configurarFormularioPerfil() {
             btnDeletar.innerHTML = '<i class="bi bi-x-lg"></i>';
             btnDeletar.title = "Excluir perfil";
             btnDeletar.onclick = (e) => {
-                e.stopPropagation(); // Impede o clique de ativar a divInfo
+                e.stopPropagation();
                 if(confirm(`Tem certeza que deseja excluir o perfil de ${perfil.nome}?`)) {
                     deletarPerfil(perfil.id);
                 }
@@ -454,24 +649,17 @@ export function configurarFormularioPerfil() {
         });
     }
 
-    // --- LIGAÇÃO COM OS BOTÕES DO MENU E DA TELA INICIAL ---
-    
-    // NOVO: Clique no botão da Página Inicial no menu
     if (btnPaginaInicial) {
         btnPaginaInicial.addEventListener('click', (e) => {
             e.preventDefault();
-            
-            // Fecha o menu hamburguer se ele estiver aberto (para Mobile)
             const menuNavegacao = document.getElementById('menu-navegacao');
             if (menuNavegacao && menuNavegacao.classList.contains('aberto')) {
                 menuNavegacao.classList.remove('aberto');
             }
-            
             abrirPaginaInicial();
         });
     }
 
-    // NOVO: Clique no botão grande "Criar Meu Perfil" do Banner
     if (btnHeroCriar) {
         btnHeroCriar.addEventListener('click', (e) => {
             e.preventDefault();
@@ -482,13 +670,10 @@ export function configurarFormularioPerfil() {
     if (btnTrocarPerfil) {
         btnTrocarPerfil.addEventListener('click', (e) => {
             e.preventDefault();
-            
-            // Fecha o menu hamburguer se ele estiver aberto
             const menuNavegacao = document.getElementById('menu-navegacao');
             if (menuNavegacao && menuNavegacao.classList.contains('aberto')) {
                 menuNavegacao.classList.remove('aberto');
             }
-            
             abrirSelecaoDePerfis();
         });
     }
@@ -496,29 +681,23 @@ export function configurarFormularioPerfil() {
     if (btnCriarPerfil) {
         btnCriarPerfil.addEventListener('click', (e) => {
             e.preventDefault();
-            
-            // Fecha o menu hamburguer se ele estiver aberto
             const menuNavegacao = document.getElementById('menu-navegacao');
             if (menuNavegacao && menuNavegacao.classList.contains('aberto')) {
                 menuNavegacao.classList.remove('aberto');
             }
-            
             abrirFormularioVazio();
         });
     }
 
-    // --- AÇÃO DO NOVO BOTÃO: SALVAR PERFIL ---
     if (btnSalvarPerfil) {
         btnSalvarPerfil.addEventListener('click', (e) => {
             e.preventDefault();
             const nome = document.getElementById('nome').value.trim();
             const idade = document.getElementById('idade').value;
 
-            // INÍCIO CHAMADAS VALIDAÇÕES DADOS CAMPOS OBRIGATÓRIOS
-                if (!validarDadosFormPerfil()) {
-                    return;
-                }
-            // FIM CHAMADA VALIDAÇÕES DADOS 
+            if (!validarDadosFormPerfil()) {
+                return;
+            }
 
             const perfilSalvo = {
                 id: perfilEditandoId || Date.now().toString(),
@@ -535,31 +714,29 @@ export function configurarFormularioPerfil() {
                 if (index !== -1) perfis[index] = perfilSalvo;
             } else {
                 perfis.push(perfilSalvo);
-                perfilEditandoId = perfilSalvo.id; // Atualiza o ID para não duplicar se clicar várias vezes seguidas
+                perfilEditandoId = perfilSalvo.id;
             }
             
             salvarPerfis(perfis);
             localStorage.setItem('cineMatch_perfil_ativo', JSON.stringify(perfilSalvo));
             
             alert(`O perfil de ${nome} foi salvo com sucesso!`);
-            // Nota: Só salva, não muda de ecrã. O utilizador pode clicar no botão de "Achar Meu Match" depois.
         });
     }
     
-    // --- SUBMISSÃO DO FORMULÁRIO ---
+    // --- SUBMISSÃO DO FORMULÁRIO (EVENTO SUBMIT) ---
     if (form) {
         form.addEventListener('submit', (event) => {
             event.preventDefault();
             const nome = document.getElementById('nome').value.trim();
             const idade = document.getElementById('idade').value;
 
-            // INÍCIO CHAMADAS VALIDAÇÕES DADOS CAMPOS OBRIGATÓRIOS
-                if (!validarDadosFormPerfil()) {
-                    return;
-                }
-            // FIM CHAMADA VALIDAÇÕES DADOS   
+            if (!validarDadosFormPerfil()) {
+                return;
+            }
+
             const perfilSalvo = {
-                id: perfilEditandoId || Date.now().toString(), // Mantém o ID antigo ou cria um novo
+                id: perfilEditandoId || Date.now().toString(),
                 nome,
                 idade: Number(idade),
                 generos: Array.from(generosSelecionados),
@@ -568,7 +745,6 @@ export function configurarFormularioPerfil() {
 
             let perfis = obterPerfisSalvos();
             
-            // Se estiver editando, atualiza. Se for novo, adiciona à lista.
             if (perfilEditandoId) {
                 const index = perfis.findIndex(p => p.id === perfilEditandoId);
                 if (index !== -1) perfis[index] = perfilSalvo;
@@ -577,53 +753,84 @@ export function configurarFormularioPerfil() {
             }
             
             salvarPerfis(perfis);
-            // Guarda também quem é o "utilizador do momento" para a API
             localStorage.setItem('cineMatch_perfil_ativo', JSON.stringify(perfilSalvo));
 
-            // Transita para os resultados
+            // Transita para a seção de resultados
             if (secaoPerfil) secaoPerfil.classList.add('escondido');
             if (secaoResultados) secaoResultados.classList.remove('escondido');
             
-            const containerResultados = document.getElementById('resultados');
-            if (containerResultados) containerResultados.innerHTML = '<p class="mensagem-feedback">Buscando recomendações...</p>';
+            // Executa o consumo da API e a geração dos cards
+            carregarERenderizarSeries();
             
             console.log('Perfil Atualizado/Criado:', perfilSalvo);
         });
     }
 
-    // --- ATUALIZADO: VERIFICAÇÃO INICIAL AO ABRIR O SITE ---
     const perfisIniciais = obterPerfisSalvos();
     if (perfisIniciais.length > 0) {
-        abrirSelecaoDePerfis(); // Já tem conta, mostra o ecrã "Quem está a assistir?"
+        abrirSelecaoDePerfis();
     } else {
-        abrirPaginaInicial(); // Se não há perfis, mostra a nova Landing Page!
+        abrirPaginaInicial();
     }
 }
 
 /**
- * Verifica em tempo real se o form cumpre as regras para ativar os botões
+ * Verifica em tempo real se o formulário cumpre as regras para ativar os botões
  */
 export function validarFormulario() {
-    const form = document.getElementById('form-perfil'); // Captura o formulário inteiro
+    const form = document.getElementById('form-perfil');
     const nome = document.getElementById('nome');
     const idade = document.getElementById('idade');
     const btnSalvar = document.getElementById('btn-salvar-perfil');
     const btnSubmit = document.getElementById('btn-submit');
     
-    // Trava de segurança para não dar erro se a tela for outra
     if (!nome || !idade || !btnSalvar || !btnSubmit || !form) return;
     
-    // A regra: Nome preenchido + Idade preenchida + Pelo menos 1 gênero
     const formValido = nome.value.trim() !== '' && idade.value.trim() !== '' && generosSelecionados.size > 0;
     
-    // Libera ou bloqueia os botões de ação
     btnSalvar.disabled = !formValido;
     btnSubmit.disabled = !formValido;
 
-    // A MÁGICA: Adiciona a classe 'form-completo' no HTML se tudo estiver preenchido
     if (formValido) {
         form.classList.add('form-completo');
     } else {
         form.classList.remove('form-completo');
+    }
+}
+
+/**
+ * Busca as 20 melhores séries da API e cria o banner de rolagem infinita
+ */
+export async function carregarBannerInicial() {
+    const trilho = document.getElementById('trilho-banner-inicial');
+    if (!trilho) return;
+
+    try {
+        if (catalogoCompletoCache.length === 0) {
+            const resposta = await fetch('https://api.tvmaze.com/shows');
+            if (!resposta.ok) throw new Error('Falha ao conectar à API.');
+            catalogoCompletoCache = await resposta.json();
+        }
+
+        // Ordena pela nota e pega as 20 melhores
+        const top20 = [...catalogoCompletoCache]
+            .sort((a, b) => (b.rating?.average || 0) - (a.rating?.average || 0))
+            .slice(0, 20);
+
+        // Função interna para montar o bloco de 20 cards
+        const gerarBlocoDeCards = () => {
+            let htmlCards = '';
+            top20.forEach(serie => {
+                const imagem = serie.image?.medium || serie.image?.original || 'https://via.placeholder.com/200x295?text=Sem+Capa';
+                htmlCards += `<div class="card-banner"><img src="${imagem}" alt="${serie.name}" loading="lazy"></div>`;
+            });
+            return htmlCards;
+        };
+
+        // Injeta os 20 cards originais + 20 duplicados (Necessário para a animação CSS não falhar)
+        trilho.innerHTML = gerarBlocoDeCards() + gerarBlocoDeCards();
+
+    } catch (erro) {
+        console.error('Erro ao carregar o banner inicial:', erro);
     }
 }

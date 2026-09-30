@@ -20,7 +20,7 @@ export class MatchCalculator {
      * @returns {number} Percentual de match (0 a 100)
      */
     static calcularMatch(generosUsuario, generosSerie) {
-        if (!generosUsuario.length || !generosSerie.length) return 0;
+        if (!generosUsuario || !generosUsuario.length || !generosSerie || !generosSerie.length) return 0;
 
         const correspondencias = generosSerie.filter(g => generosUsuario.includes(g));
         const percentual = (correspondencias.length / generosUsuario.length) * 100;
