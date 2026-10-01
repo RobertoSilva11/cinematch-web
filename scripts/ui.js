@@ -29,6 +29,24 @@ let filtroIdiomaAtivo = false;
 let localizacaoAtiva = false;
 const elementosErro = [];
 
+export function exibirMensagemFeedback(elementoContainer, textoMensagem, ehErro = false, temSpinner = false) {
+    elementoContainer.innerHTML = ""; 
+    const p = document.createElement("p");
+    p.className = "mensagem-feedback";
+    
+    if (temSpinner) {
+        const icon = document.createElement("i");
+        icon.className = "bi bi-arrow-repeat spin";
+        p.appendChild(icon);
+        p.appendChild(document.createTextNode(" "));
+    }
+    
+    p.appendChild(document.createTextNode(textoMensagem));
+    if (ehErro) p.style.color = "#e63946";
+    
+    elementoContainer.appendChild(p);
+}
+
 /**
  * Retorna a sinopse original sem tags HTML. A tradução será feita pelo navegador.
  */
@@ -132,138 +150,6 @@ export function inicializarMenuHamburguer() {
     });
   }
 }
-///COLOCAR NUM .JS SEPARADO
-/**
- * Simula um clique invisível no widget do Google Tradutor e extermina a barra branca
- */
-function forcarTraducaoGoogle(ativar) {
-  const selectBox = document.querySelector(".goog-te-combo");
-
-  if (ativar) {
-    if (selectBox) {
-      selectBox.value = "pt";
-      selectBox.dispatchEvent(new Event("change"));
-    }
-  } else {
-    // 1. Tenta reverter definindo o idioma alvo de volta para o original ('en')
-    if (selectBox) {
-      selectBox.value = "en";
-      selectBox.dispatchEvent(new Event("change"));
-    }
-
-    // 2. Tenta acionar o botão oculto "Show Original" dentro da estrutura do Google
-    try {
-      const iframe = document.querySelector(
-        ".goog-te-banner-frame, body > .skiptranslate > iframe",
-      );
-      if (iframe) {
-        const innerDoc =
-          iframe.contentDocument || iframe.contentWindow.document;
-        const btnRestore =
-          innerDoc.getElementById("restore") ||
-          innerDoc.querySelector('button[id*="restore"]');
-        if (btnRestore) btnRestore.click();
-      }
-    } catch (erro) {
-      // Ignora bloqueios de segurança do navegador (CORS) caso o iframe seja protegido
-    }
-
-    // 3. Destrói o cookie de memória do Google Tradutor
-    document.cookie =
-      "googtrans=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
-    document.cookie =
-      "googtrans=; expires=Thu, 01 Jan 1970 00:00:00 UTC; domain=" +
-      location.hostname +
-      "; path=/;";
-  }
-
-  // Mantém a vigilância contra a barra branca intrusiva
-  setTimeout(() => {
-    document.body.style.top = "0px";
-    const barraGoogle = document.querySelector(
-      ".goog-te-banner-frame, .skiptranslate > iframe, .VIpgJd-ZVi9od-aZ2wEe-wOHMyf",
-    );
-    if (barraGoogle) {
-      barraGoogle.style.display = "none";
-    }
-  }, 500);
-}
-
-/**
- * Botão On/Off de Localização com Gatilho de Tradução Instantânea
- SEPARADO*/
-export function inicializarGeolocalizacao() {
-  const btnGeo = document.getElementById("btn-geolocalizacao");
-  const textoBtnGeo = document.getElementById("texto-btn-geo");
-  const indicadorCidade = document.getElementById("indicador-cidade");
-  const textoCidade = document.getElementById("texto-cidade");
-
-  if (!btnGeo) return;
-
-  btnGeo.addEventListener("click", () => {
-    // SE ESTIVER ATIVADO -> VAMOS DESATIVAR
-    if (localizacaoAtiva) {
-      localizacaoAtiva = false;
-
-      if (indicadorCidade) indicadorCidade.classList.add("escondido");
-      if (textoBtnGeo) textoBtnGeo.textContent = "Ativar Localização";
-
-      // Reverte a tradução imediatamente
-      forcarTraducaoGoogle(false);
-      return;
-    }
-
-    // SE ESTIVER DESATIVADO -> VAMOS ATIVAR
-    if (!navigator.geolocation) {
-      alert("Geolocalização não é suportada pelo seu navegador.");
-      return;
-    }
-
-    if (textoCidade) textoCidade.textContent = "Detectando...";
-    if (indicadorCidade) indicadorCidade.classList.remove("escondido");
-
-    navigator.geolocation.getCurrentPosition(
-      async (posicao) => {
-        const lat = posicao.coords.latitude;
-        const lon = posicao.coords.longitude;
-
-        try {
-          const resposta = await fetch(
-            `https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lon}`,
-          );
-          const dados = await resposta.json();
-
-          const cidade =
-            dados.address.city ||
-            dados.address.town ||
-            dados.address.village ||
-            "Sua Região";
-          const estado = dados.address.state ? `, ${dados.address.state}` : "";
-
-          if (textoCidade) textoCidade.textContent = `${cidade}${estado}`;
-          localizacaoAtiva = true;
-          if (textoBtnGeo) textoBtnGeo.textContent = "Desativar Localização";
-
-          // Dispara a tradução imediatamente para Português!
-          forcarTraducaoGoogle(true);
-        } catch (erro) {
-          if (textoCidade) textoCidade.textContent = "Localização Ativa";
-          localizacaoAtiva = true;
-          if (textoBtnGeo) textoBtnGeo.textContent = "Desativar Localização";
-
-          // Mesmo se a API de mapas falhar, a tradução acontece
-          forcarTraducaoGoogle(true);
-        }
-      },
-      () => {
-        alert("Não foi possível obter a sua localização.");
-        if (indicadorCidade) indicadorCidade.classList.add("escondido");
-        localizacaoAtiva = false;
-        if (textoBtnGeo) textoBtnGeo.textContent = "Ativar Localização";
-      },
-    );
-  });
-}
 
 /**
  * Renderizar e Exibir as Mensagens de Erro
@@ -361,40 +247,72 @@ export function validarDadosFormPerfil() {
 
 /**
  * Cria o elemento HTML de um Card de Série
-
-FAZ SENTIDO FAZER UMA REESCRITRA PARA CREATELEMENT?*/
-
+ */
 function criarCardSerie(serie, match = null) {
   const card = document.createElement("article");
   card.className = "card-serie";
 
-  const imagemPoster =
-    serie.imagemMedia ||
-    serie.imagemOriginal ||
-    "https://via.placeholder.com/210x295?text=Sem+Capa";
+  const imagemPoster = serie.imagemMedia || serie.imagemOriginal || "https://via.placeholder.com/210x295?text=Sem+Capa";
   const nota = serie.avaliacaoNota ? `${serie.avaliacaoNota} / 10` : "N/A";
   const sinopseExibicao = obterSinopse(serie);
 
-  const badgeMatchHTML = (match !== null && match !== undefined)
-    ? `<div class="badge-match ${match >= 50 ? "match-alto" : "match-medio"} notranslate">
-        ${match}% Match
-       </div>`
-    : "";
+  if (match !== null && match !== undefined) {
+    const badge = document.createElement("div");
+    badge.className = `badge-match ${match >= 50 ? "match-alto" : "match-medio"} notranslate`;
+    badge.textContent = `${match}% Match`;
+    card.appendChild(badge);
+  }
 
-  card.innerHTML = `${badgeMatchHTML}
-        <img src="${imagemPoster}" alt="Poster de ${serie.titulo}" loading="lazy" class="img-poster">
-        <div class="conteudo-card">
-            <h3>${serie.titulo}</h3>
-            <p class="generos-card">${(serie.generos || []).join(" • ")}</p>
-            <p class="sinopse-card">${sinopseExibicao}</p>
-            <div class="rodape-card">
-                <span class="nota-card"><i class="bi bi-star-fill"></i> ${nota}</span>
-                <a href="${serie.url}" target="_blank" rel="noopener noreferrer" class="btn-detalhes">
-                    Ver Mais <i class="bi bi-box-arrow-up-right"></i>
-                </a>
-            </div>
-        </div>
-    `;
+  const img = document.createElement("img");
+  img.src = imagemPoster;
+  img.alt = `Poster de ${serie.titulo}`;
+  img.className = "img-poster";
+  img.loading = "lazy";
+  card.appendChild(img);
+
+  const conteudo = document.createElement("div");
+  conteudo.className = "conteudo-card";
+
+  const titulo = document.createElement("h3");
+  titulo.textContent = serie.titulo;
+  conteudo.appendChild(titulo);
+
+  const generos = document.createElement("p");
+  generos.className = "generos-card";
+  generos.textContent = (serie.generos || []).join(" • ");
+  conteudo.appendChild(generos);
+
+  const sinopse = document.createElement("p");
+  sinopse.className = "sinopse-card";
+  sinopse.textContent = sinopseExibicao;
+  conteudo.appendChild(sinopse);
+
+  const rodape = document.createElement("div");
+  rodape.className = "rodape-card";
+
+  const spanNota = document.createElement("span");
+  spanNota.className = "nota-card";
+  
+  const iconeEstrela = document.createElement("i");
+  iconeEstrela.className = "bi bi-star-fill";
+  spanNota.appendChild(iconeEstrela);
+  spanNota.appendChild(document.createTextNode(` ${nota}`));
+  rodape.appendChild(spanNota);
+
+  const link = document.createElement("a");
+  link.href = serie.url;
+  link.target = "_blank";
+  link.rel = "noopener noreferrer";
+  link.className = "btn-detalhes";
+  link.textContent = "Ver Mais ";
+  
+  const iconeSeta = document.createElement("i");
+  iconeSeta.className = "bi bi-box-arrow-up-right";
+  link.appendChild(iconeSeta);
+  
+  rodape.appendChild(link);
+  conteudo.appendChild(rodape);
+  card.appendChild(conteudo);
 
   return card;
 }
@@ -444,8 +362,7 @@ export async function renderizarSeries() {
     !perfilAtivo.generos ||
     perfilAtivo.generos.length === 0
   ) {
-    esteiraAlto.innerHTML =
-      '<p class="mensagem-feedback">Nenhum perfil ativo encontrado. Por favor, crie ou selecione um perfil.</p>';
+    exibirMensagemFeedback(esteiraAlto, "Nenhum perfil ativo encontrado. Por favor, crie ou selecione um perfil.");
     return;
   }
 
@@ -479,8 +396,7 @@ export async function renderizarSeries() {
 
     // Renderiza Seção 1
     if (maiorCompatibilidade.length === 0) {
-      esteiraAlto.innerHTML =
-        '<p class="mensagem-feedback">Nenhuma série com alta compatibilidade para os gêneros escolhidos.</p>';
+      exibirMensagemFeedback(esteiraAlto, "Nenhuma série com alta compatibilidade para os gêneros escolhidos.");
     } else {
       maiorCompatibilidade.forEach(({serie, match}) => {
         esteiraAlto.appendChild(criarCardSerie(serie, match));
@@ -491,13 +407,14 @@ export async function renderizarSeries() {
     menosRecomendadas.forEach(({serie, match}) => {
       esteiraMedio.appendChild(criarCardSerie(serie, match));
     });
-
+    // Liga a inteligência de teclado nas esteiras
+    aplicarNavegacaoTecladoAcessivel(esteiraAlto);
+    aplicarNavegacaoTecladoAcessivel(esteiraMedio);
     configurarControlesCarrossel();
     configurarModalBuscaAvancada();
   } catch (erro) {
     console.error("Erro ao carregar séries:", erro);
-    esteiraAlto.innerHTML =
-      '<p class="mensagem-feedback" style="color: #e63946;">Erro ao carregar os dados da API TVMaze. Tente novamente mais tarde.</p>';
+    exibirMensagemFeedback(esteiraAlto, "Erro ao carregar os dados da API TVMaze. Tente novamente mais tarde.", true);
   }
 }
 
@@ -565,6 +482,8 @@ export function configurarModalBuscaAvancada() {
     filtradas.forEach((serie) => {
       containerResultados.appendChild(criarCardSerie(serie));
     });
+    // Liga a inteligência de teclado nos resultados da busca
+    aplicarNavegacaoTecladoAcessivel(containerResultados, true);
   };
 
   btnAbrir.onclick = async () => {
@@ -590,6 +509,13 @@ export function configurarModalBuscaAvancada() {
     modal.classList.add("escondido");
     renderizarSeries();
   };
+
+  // Permite fechar o modal com a tecla ESC a qualquer momento
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape' && !modal.classList.contains('escondido')) {
+      btnFechar.click();
+    }
+  });
 
   inputBusca.oninput = (evento) => {
     renderizarBusca(evento.target.value);
@@ -709,15 +635,37 @@ export function configurarFormularioPerfil() {
       const divItem = document.createElement("div");
       divItem.className = "item-perfil";
 
-      const divInfo = document.createElement("div");
-      divInfo.className = "info-perfil";
-      divInfo.innerHTML = `<strong>${perfil.nome}</strong> <small>${perfil.idade} anos • ${perfil.generos.length} gêneros favoritados</small>`;
-      divInfo.onclick = () => preencherFormulario(perfil);
+      // 1. Criar o botão principal de seleção (Semântico e acessível por teclado)
+      const btnInfo = document.createElement("button");
+      btnInfo.type = "button";
+      btnInfo.className = "info-perfil notranslate";
+      
+      // Criar o texto em negrito (Nome)
+      const strong = document.createElement("strong");
+      strong.textContent = perfil.nome;
+      
+      // Criar o texto menor (Idade e Gêneros)
+      const small = document.createElement("small");
+      small.textContent = ` ${perfil.idade} anos • ${perfil.generos.length} gêneros favoritos`;
+      
+      // Injetar os textos no botão de forma segura (Sem innerHTML)
+      btnInfo.appendChild(strong);
+      btnInfo.appendChild(small);
 
+      // Ação de clique (Como é um <button>, o Enter/Espaço já ativam isto nativamente)
+      btnInfo.onclick = () => preencherFormulario(perfil);
+
+      // 2. Criar o botão de deletar
       const btnDeletar = document.createElement("button");
+      btnDeletar.type = "button";
       btnDeletar.className = "btn-deletar-perfil";
-      btnDeletar.innerHTML = '<i class="bi bi-x-lg"></i>';
       btnDeletar.title = "Excluir perfil";
+      
+      // Criar o ícone do Bootstrap (Sem innerHTML)
+      const iconeDeletar = document.createElement("i");
+      iconeDeletar.className = "bi bi-x-lg";
+      btnDeletar.appendChild(iconeDeletar);
+
       btnDeletar.onclick = (e) => {
         e.stopPropagation();
         if (
@@ -727,7 +675,8 @@ export function configurarFormularioPerfil() {
         }
       };
 
-      divItem.appendChild(divInfo);
+      // 3. Montar a estrutura final
+      divItem.appendChild(btnInfo);
       divItem.appendChild(btnDeletar);
       listaPerfis.appendChild(divItem);
     });
@@ -927,4 +876,72 @@ export async function carregarBannerInicial() {
   } catch (erro) {
     console.error("Erro ao carregar o banner inicial:", erro);
   }
+}
+
+
+/**
+ * Aplica o padrão Roving Tabindex para acessibilidade de teclado em carrosséis e grelhas
+ */
+function aplicarNavegacaoTecladoAcessivel(container, ehGrid = false) {
+    if (!container) return;
+    
+    const links = container.querySelectorAll('.btn-detalhes');
+    if (links.length === 0) return;
+
+    links.forEach((link, index) => {
+        link.tabIndex = index === 0 ? 0 : -1;
+
+        link.addEventListener('focus', () => {
+            link.closest('.card-serie').classList.add('card-focado');
+        });
+
+        link.addEventListener('blur', () => {
+            link.closest('.card-serie').classList.remove('card-focado');
+        });
+
+        link.addEventListener('keydown', (e) => {
+            let novoIndex = -1;
+
+            // Calcula dinamicamente quantas colunas o grid tem no momento (responsividade)
+            let colunas = 1;
+            if (ehGrid && links.length > 1) {
+                const cards = Array.from(container.querySelectorAll('.card-serie'));
+                colunas = cards.filter(c => c.offsetTop === cards[0].offsetTop).length || 1;
+            }
+
+            if (e.key === 'ArrowRight') {
+                novoIndex = index + 1 < links.length ? index + 1 : index;
+                e.preventDefault();
+            } else if (e.key === 'ArrowLeft') {
+                novoIndex = index - 1 >= 0 ? index - 1 : index;
+                e.preventDefault();
+            } else if (ehGrid && e.key === 'ArrowDown') {
+                novoIndex = index + colunas < links.length ? index + colunas : index;
+                e.preventDefault();
+            } else if (ehGrid && e.key === 'ArrowUp') {
+                novoIndex = index - colunas >= 0 ? index - colunas : index;
+                e.preventDefault();
+            } else if (e.key === 'Tab' && !e.shiftKey) {
+                // No modal (Grid), o Tab "pula" os cards e vai direto para o botão fechar (X)
+                if (ehGrid) {
+                    e.preventDefault();
+                    const btnFechar = document.getElementById('btn-fechar-busca-avancada');
+                    if (btnFechar) btnFechar.focus();
+                }
+                // Nos carrosséis, o Tab nativo já salta para a esteira de baixo graças ao tabIndex = -1 !
+            }
+
+            if (novoIndex !== -1 && novoIndex !== index) {
+                links[index].tabIndex = -1;
+                links[novoIndex].tabIndex = 0;
+                links[novoIndex].focus();
+
+                links[novoIndex].closest('.card-serie').scrollIntoView({
+                    behavior: 'smooth',
+                    block: 'nearest',
+                    inline: 'center'
+                });
+            }
+        });
+    });
 }

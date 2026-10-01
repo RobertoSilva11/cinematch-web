@@ -425,10 +425,19 @@ form {
     transition: transform 0.3s ease, border-color 0.3s ease, box-shadow 0.3s ease;
 }
 
-.card-serie:hover {
+/* O efeito agora funciona com o rato (hover) e com o teclado (card-focado) */
+.card-serie:hover,
+.card-serie.card-focado {
     transform: translateY(-6px);
     border-color: var(--primary-accent);
     box-shadow: 0 8px 25px var(--azul-glow);
+}
+
+/* Opcional: Melhora o anel de foco do botão "Ver Mais" para quem usa teclado */
+.btn-detalhes:focus {
+    outline: 2px solid var(--primary-accent);
+    outline-offset: 4px;
+    border-radius: 4px;
 }
 
 .badge-match {
@@ -629,6 +638,21 @@ form {
     border-color: var(--primary-accent);
     box-shadow: 0 4px 15px var(--azul-glow);
     transform: translateX(5px);
+}
+
+/* Reset e Expansão do Botão de Perfil */
+button.info-perfil {
+    background: transparent;
+    border: none;
+    text-align: left;
+    font-family: inherit;
+    color: inherit;
+    cursor: pointer;
+    padding: 0;
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 0.2rem;
 }
 
 .info-perfil strong {

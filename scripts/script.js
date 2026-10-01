@@ -1,16 +1,20 @@
 import { 
     inicializarTema, 
     renderizarGenerosEstaticos, 
-    inicializarGeolocalizacao, 
     inicializarMenuHamburguer, 
     configurarFormularioPerfil,
     carregarBannerInicial,
     configurarModalBuscaAvancada
 } from './ui.js';
 
+import {
+    inicializarGeolocalizacao
+}from './translator.js'
+
 import { 
     buscarCatalogo
 } from './api.js';
+
 
 import { 
     Series
@@ -33,7 +37,6 @@ document.addEventListener('DOMContentLoaded', () => {
     configurarFormularioPerfil();
     carregarBannerInicial();
     buscarCatalogo();
-    Series;
     configurarModalBuscaAvancada();
 });
 
