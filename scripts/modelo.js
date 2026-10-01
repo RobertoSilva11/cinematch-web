@@ -9,6 +9,78 @@ export class PerfilUsuario {
     }
 }
 
+/** RF06
+ * Classe Conteudo do Catalogo (pai)
+ */
+export class Conteudo {
+    constructor(id, titulo, tipo, generos) {
+        this.id = id;
+        this.titulo = titulo;
+        this.tipo = tipo;
+        this.generos = generos;
+    }
+
+    exibirResumoConteudo() {
+        return `
+     ID: ${this.id}
+     Título: ${this.titulo}
+     Tipo: ${this.tipo}
+     Gêneros: ${this.generos.join(", ")}`;
+    }
+}
+
+
+/**
+ * Classe Series do Conteudo (filha)
+ */
+export class Series extends Conteudo {
+
+    constructor(
+        id,
+        titulo,
+        tipo,
+        generos,
+        classificacao,
+        temporadas,
+        episodios,
+        imagemMedia = null,
+        imagemOriginal = null,
+        sinopse = null,
+        avaliacaoNota = null,
+        idioma = null,
+        status = null,
+        duracao = null,
+        url = null
+    ) {
+
+        super(id, titulo, tipo, generos);
+
+        this.classificacao = classificacao;
+        this.temporadas = temporadas;
+        this.episodios = episodios;
+        this.imagemMedia = imagemMedia;
+        this.imagemOriginal = imagemOriginal;
+        this.sinopse = sinopse;
+        this.avaliacaoNota = avaliacaoNota;
+        this.idioma = idioma;
+        this.status = status;
+        this.duracao = duracao;
+        this.url = url;
+    }
+
+
+    /**
+     * Exibe resumo específico da série
+     */
+    exibirResumoSeries() {
+        return `
+     Classificação: ${this.classificacao ?? "Não informado"}
+     Temporadas: ${this.temporadas ?? "Não informado"}
+     Episódios: ${this.episodios ?? "Não informado"}`;
+    }
+
+}
+
 /**
  * Calculadora de Match para Séries
  */

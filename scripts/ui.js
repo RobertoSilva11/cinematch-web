@@ -1,4 +1,5 @@
-import { MatchCalculator } from "./modelo.js";
+import { buscarCatalogo } from "./api.js";
+import { MatchCalculator, Series } from "./modelo.js";
 
 const GENEROS_ESTATICOS = [
   { label: "Ação", value: "Action" },
@@ -28,17 +29,14 @@ let filtroIdiomaAtivo = false;
 let localizacaoAtiva = false;
 const elementosErro = [];
 
-// Cache de catálogo estático e dicionário local de sinopses para evitar falhas de rede/API externa
-let catalogoCompletoCache = [];
-
 /**
  * Retorna a sinopse original sem tags HTML. A tradução será feita pelo navegador.
  */
 function obterSinopse(serie) {
-  if (!serie.summary) return "Sinopse indisponível.";
+  if (!serie.sinopse) return "Sinopse indisponível.";
 
   // Retira as tags <p>, <b>, etc., que vêm da API
-  const textoLimpo = serie.summary.replace(/<[^>]*>?/gm, "");
+  const textoLimpo = serie.sinopse.replace(/<[^>]*>?/gm, "");
 
   return textoLimpo.length > 130
     ? textoLimpo.slice(0, 130) + "..."
@@ -366,25 +364,28 @@ export function validarDadosFormPerfil() {
 
 FAZ SENTIDO FAZER UMA REESCRITRA PARA CREATELEMENT?*/
 
-function criarCardSerie(serie) {
+function criarCardSerie(serie, match = null) {
   const card = document.createElement("article");
   card.className = "card-serie";
 
   const imagemPoster =
-    serie.image?.medium ||
-    serie.image?.original ||
+    serie.imagemMedia ||
+    serie.imagemOriginal ||
     "https://via.placeholder.com/210x295?text=Sem+Capa";
-  const nota = serie.rating?.average ? `${serie.rating.average} / 10` : "N/A";
+  const nota = serie.avaliacaoNota ? `${serie.avaliacaoNota} / 10` : "N/A";
   const sinopseExibicao = obterSinopse(serie);
 
-  card.innerHTML = `
-        <div class="badge-match ${serie.match >= 50 ? "match-alto" : "match-medio"} notranslate">
-            ${serie.match}% Match
-        </div>
-        <img src="${imagemPoster}" alt="Poster de ${serie.name}" loading="lazy" class="img-poster">
+  const badgeMatchHTML = (match !== null && match !== undefined)
+    ? `<div class="badge-match ${match >= 50 ? "match-alto" : "match-medio"} notranslate">
+        ${match}% Match
+       </div>`
+    : "";
+
+  card.innerHTML = `${badgeMatchHTML}
+        <img src="${imagemPoster}" alt="Poster de ${serie.titulo}" loading="lazy" class="img-poster">
         <div class="conteudo-card">
-            <h3>${serie.name}</h3>
-            <p class="generos-card">${(serie.genres || []).join(" • ")}</p>
+            <h3>${serie.titulo}</h3>
+            <p class="generos-card">${(serie.generos || []).join(" • ")}</p>
             <p class="sinopse-card">${sinopseExibicao}</p>
             <div class="rodape-card">
                 <span class="nota-card"><i class="bi bi-star-fill"></i> ${nota}</span>
@@ -399,9 +400,35 @@ function criarCardSerie(serie) {
 }
 
 /**
+ * Transforma os dados da API em objetos Series
+ */
+export function transformarDadosApiEmSeries(dados) {
+
+    return dados.map(dado =>
+        new Series(
+            dado.id,
+            dado.name,
+            dado.type,
+            dado.genres ?? [],
+            null,
+            null,
+            null,
+            dado.image?.medium ?? null,
+            dado.image?.original ?? null,
+            dado.summary ?? null,
+            dado.rating?.average ?? null,
+            dado.language ?? null,
+            dado.status ?? null,
+            dado.runtime ?? null,
+            dado.url
+        )
+    );
+}
+
+/**
  * Consome a API do TVMaze, separa em duas seções de recomendação com carrossel
  */
-export async function carregarERenderizarSeries() {
+export async function renderizarSeries() {
   const esteiraAlto = document.getElementById("esteira-match-alto");
   const esteiraMedio = document.getElementById("esteira-match-medio");
   const tituloAlto = document.getElementById("titulo-match-alto");
@@ -427,28 +454,21 @@ export async function carregarERenderizarSeries() {
   }
 
   try {
-    esteiraAlto.innerHTML =
-      '<p class="mensagem-feedback"><i class="bi bi-arrow-repeat spin"></i> Buscando recomendações no catálogo...</p>';
     esteiraMedio.innerHTML = "";
-    /**separar a busca api para uma função buscar catálogo para tratativa de erro é mais facil SEPARADO */
-    if (catalogoCompletoCache.length === 0) {
-      const resposta = await fetch("https://api.tvmaze.com/shows");
-      if (!resposta.ok) throw new Error("Falha ao conectar à API de séries.");
-      catalogoCompletoCache = await resposta.json();
-    }
 
-    let series = [...catalogoCompletoCache];
+    // Chamada Busca Catálogo Completo API (api.js) - Transforma os Dados p/ Séries
+    const series = transformarDadosApiEmSeries(await buscarCatalogo());
 
     // Calcula o % de Match e ordena de forma decrescente
     const seriesComMatch = series
-      .map((serie) => {
-        const percentualMatch = MatchCalculator.calcularMatch(
-          perfilAtivo.generos,
-          serie.genres || [],
-        );
-        return { ...serie, match: percentualMatch };
-      })
-      .sort((a, b) => b.match - a.match);
+        .map((serie) => ({
+        serie,
+        match: MatchCalculator.calcularMatch(
+            perfilAtivo.generos,
+            serie.generos || []
+        )
+    }))
+    .sort((a, b) => b.match - a.match);
 
     // Separação em duas categorias (Match >= 50% e Match < 50%)
     const maiorCompatibilidade = seriesComMatch.filter((s) => s.match >= 50);
@@ -462,14 +482,14 @@ export async function carregarERenderizarSeries() {
       esteiraAlto.innerHTML =
         '<p class="mensagem-feedback">Nenhuma série com alta compatibilidade para os gêneros escolhidos.</p>';
     } else {
-      maiorCompatibilidade.forEach((serie) => {
-        esteiraAlto.appendChild(criarCardSerie(serie));
+      maiorCompatibilidade.forEach(({serie, match}) => {
+        esteiraAlto.appendChild(criarCardSerie(serie, match));
       });
     }
 
     // Renderiza Seção 2
-    menosRecomendadas.forEach((serie) => {
-      esteiraMedio.appendChild(criarCardSerie(serie));
+    menosRecomendadas.forEach(({serie, match}) => {
+      esteiraMedio.appendChild(criarCardSerie(serie, match));
     });
 
     configurarControlesCarrossel();
@@ -511,28 +531,34 @@ function configurarControlesCarrossel() {
 /**
  * Inicializa a funcionalidade do Modal de Busca Avançada
  */
-function configurarModalBuscaAvancada() {
+
+export function configurarModalBuscaAvancada() {
+  const modal = document.getElementById("modal-busca-avancada");
   const btnAbrir = document.getElementById("btn-abrir-busca-avancada");
   const btnFechar = document.getElementById("btn-fechar-busca-avancada");
-  const modal = document.getElementById("modal-busca-avancada");
   const inputBusca = document.getElementById("input-busca-avancada");
   const containerResultados = document.getElementById(
-    "resultados-busca-avancada",
+    "resultados-busca-avancada"
   );
 
-  if (!btnAbrir || !modal || !inputBusca || !containerResultados) return;
+  if (!modal || !btnAbrir || !btnFechar || !inputBusca || !containerResultados) {
+    return;
+  }
+
+  let series = [];
 
   const renderizarBusca = (filtro = "") => {
     containerResultados.innerHTML = "";
-    const termo = filtro.toLowerCase().trim();
 
-    const filtradas = catalogoCompletoCache.filter((serie) =>
-      serie.name.toLowerCase().includes(termo),
+    const termo = filtro.trim().toLowerCase();
+
+    const filtradas = series.filter((serie) =>
+      serie.titulo.toLowerCase().includes(termo)
     );
 
     if (filtradas.length === 0) {
       containerResultados.innerHTML =
-        '<p class="mensagem-feedback">Nenhuma série encontrada com esse nome.</p>';
+        '<p class="mensagem-sem-resultado">Nenhuma série encontrada.</p>';
       return;
     }
 
@@ -541,19 +567,32 @@ function configurarModalBuscaAvancada() {
     });
   };
 
-  btnAbrir.onclick = () => {
+  btnAbrir.onclick = async () => {
     modal.classList.remove("escondido");
     inputBusca.value = "";
-    renderizarBusca();
-    inputBusca.focus();
+
+    try {
+      const dadosApi = await buscarCatalogo();
+
+      series = transformarDadosApiEmSeries(dadosApi);
+
+      renderizarBusca();
+      inputBusca.focus();
+    } catch (erro) {
+      console.error("Erro ao carregar catálogo para busca avançada:", erro);
+
+      containerResultados.innerHTML =
+        '<p class="mensagem-sem-resultado">Não foi possível carregar o catálogo.</p>';
+    }
   };
 
   btnFechar.onclick = () => {
     modal.classList.add("escondido");
+    renderizarSeries();
   };
 
-  inputBusca.oninput = (e) => {
-    renderizarBusca(e.target.value);
+  inputBusca.oninput = (evento) => {
+    renderizarBusca(evento.target.value);
   };
 }
 
@@ -813,7 +852,7 @@ export function configurarFormularioPerfil() {
       if (secaoResultados) secaoResultados.classList.remove("escondido");
 
       // Executa o consumo da API e a geração dos cards
-      carregarERenderizarSeries();
+      renderizarSeries();
 
       console.log("Perfil Atualizado/Criado:", perfilSalvo);
     });
@@ -862,15 +901,12 @@ export async function carregarBannerInicial() {
   if (!trilho) return;
 
   try {
-    if (catalogoCompletoCache.length === 0) {
-      const resposta = await fetch("https://api.tvmaze.com/shows");
-      if (!resposta.ok) throw new Error("Falha ao conectar à API.");
-      catalogoCompletoCache = await resposta.json();
-    }
+    // Chamada Busca Catálogo Completo API (api.js) - Transforma os Dados p/ Séries
+    const series = transformarDadosApiEmSeries(await buscarCatalogo());
 
     // Ordena pela nota e pega as 20 melhores
-    const top20 = [...catalogoCompletoCache]
-      .sort((a, b) => (b.rating?.average || 0) - (a.rating?.average || 0))
+    const top20 = series
+      .sort((a, b) => (b.avaliacaoNota || 0) - (a.avaliacaoNota || 0))
       .slice(0, 20);
 
     // Função interna para montar o bloco de 20 cards
@@ -878,10 +914,10 @@ export async function carregarBannerInicial() {
       let htmlCards = "";
       top20.forEach((serie) => {
         const imagem =
-          serie.image?.medium ||
-          serie.image?.original ||
+          serie.imagemMedia ||
+          serie.imagemOriginal ||
           "https://via.placeholder.com/200x295?text=Sem+Capa";
-        htmlCards += `<div class="card-banner"><img src="${imagem}" alt="${serie.name}" loading="lazy"></div>`;
+        htmlCards += `<div class="card-banner"><img src="${imagem}" alt="${serie.titulo}" loading="lazy"></div>`;
       });
       return htmlCards;
     };

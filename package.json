@@ -1,0 +1,24 @@
+{
+  "name": "cinematch-web",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "start": "live-server"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/RobertoSilva11/cinematch-web.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "bugs": {
+    "url": "https://github.com/RobertoSilva11/cinematch-web/issues"
+  },
+  "homepage": "https://github.com/RobertoSilva11/cinematch-web#readme",
+  "devDependencies": {
+    "live-server": "^1.2.2"
+  }
+}

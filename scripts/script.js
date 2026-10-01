@@ -4,8 +4,17 @@ import {
     inicializarGeolocalizacao, 
     inicializarMenuHamburguer, 
     configurarFormularioPerfil,
-    carregarBannerInicial
+    carregarBannerInicial,
+    configurarModalBuscaAvancada
 } from './ui.js';
+
+import { 
+    buscarCatalogo
+} from './api.js';
+
+import { 
+    Series
+} from './modelo.js';
 
 document.addEventListener('DOMContentLoaded', () => {
     // 1. Temporizador de 5 segundos para a Splash Screen de Introdução
@@ -23,4 +32,9 @@ document.addEventListener('DOMContentLoaded', () => {
     inicializarMenuHamburguer();
     configurarFormularioPerfil();
     carregarBannerInicial();
+    buscarCatalogo();
+    Series;
+    configurarModalBuscaAvancada();
 });
+
+
