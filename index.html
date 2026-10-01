@@ -1,236 +1,343 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="pt-BR" class="dark">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta
+      http-equiv="Content-Security-Policy"
+      content="default-src 'self' https: 'unsafe-inline' 'unsafe-eval'; img-src 'self' data: https:;"
+    />
+    <meta
+      name="description"
+      content="As melhores Séries para você em tempo real baseados no seu perfil e gêneros favoritos"
+    />
 
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
-    <meta name="description" content="As melhores Séries para você em tempo real baseados no seu perfil e gêneros favoritos">
-
-    <meta property="og:title" content="CineMatch Web: Recomendação de Séries">
-    <meta property="og:description" content="As melhores Séries para você em tempo real baseados no seu perfil e gêneros favoritos">
-    <meta property="og:image" content="https://raw.githubusercontent.com/RobertoSilva11/cinematch-web/987e2073b7c0f06ae574589435052a29475fd5d3/img/Logo.png">
-    <meta property="og:image:type" content="image/png">
-    <meta property="og:image:width" content="720">
-    <meta property="og:image:height" content="380">
-    <meta property="og:image:alt" content="Logo do CineMatch Web">
-    <meta property="og:type" content="website">
+    <meta property="og:title" content="CineMatch Web: Recomendação de Séries" />
+    <meta
+      property="og:description"
+      content="As melhores Séries para você em tempo real baseados no seu perfil e gêneros favoritos"
+    />
+    <meta
+      property="og:image"
+      content="https://raw.githubusercontent.com/RobertoSilva11/cinematch-web/987e2073b7c0f06ae574589435052a29475fd5d3/img/Logo.png"
+    />
+    <meta property="og:image:type" content="image/png" />
+    <meta property="og:image:width" content="720" />
+    <meta property="og:image:height" content="380" />
+    <meta property="og:image:alt" content="Logo do CineMatch Web" />
+    <meta property="og:type" content="website" />
 
     <title>CineMatch Web: Recomendação de Séries</title>
     <!-- Bootstrap Icons -->
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
-    <link rel="stylesheet" href="./style.css">
-</head>
+    <link
+      rel="stylesheet"
+      href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css"
+    />
+    <link rel="stylesheet" href="./style.css" />
+  </head>
 
-<body>
-
+  <body>
     <!-- TELA DE INTRODUÇÃO (SPLASH SCREEN DE 5 SEGUNDOS) -->
     <div id="splash-screen">
-        <div class="splash-conteudo">
-            <img src="./img/logo-fundo.png" alt="CineMatch Web" class="logo-splash">
-            <div class="loader-bar"></div>
-        </div>
+      <div class="splash-conteudo">
+        <img
+          src="./img/logo-fundo.png"
+          alt="CineMatch Web"
+          class="logo-splash"
+        />
+        <div class="loader-bar"></div>
+      </div>
     </div>
 
     <!-- CABEÇALHO DA APLICAÇÃO -->
     <header>
-        <div class="logo">
-            <h1><img src="./img/logo-fundo.png" alt="Logótipo CineMatch Web"></h1>
+      <div class="logo">
+        <img src="./img/logo-fundo.png" alt="Logótipo CineMatch Web" />
+      </div>
+
+      <div class="header-direita">
+        <!-- Indicador Discreto de Cidade -->
+        <div id="indicador-cidade" class="indicador-cidade escondido">
+          <i class="bi bi-geo-alt-fill"></i>
+          <span id="texto-cidade">Detectando local...</span>
         </div>
 
-        <div class="header-direita">
-            <!-- Indicador Discreto de Cidade -->
-            <div id="indicador-cidade" class="indicador-cidade escondido">
-                <i class="bi bi-geo-alt-fill"></i>
-                <span id="texto-cidade">Detectando local...</span>
-            </div>
+        <!-- Botão Hambúrguer para Telas Menores -->
+        <button
+          type="button"
+          id="btn-hamburguer"
+          class="btn-hamburguer"
+          aria-label="Abrir menu"
+        >
+          <i class="bi bi-list"></i>
+        </button>
 
-            <!-- Botão Hambúrguer para Telas Menores -->
-            <button type="button" id="btn-hamburguer" class="btn-hamburguer" aria-label="Abrir menu">
-                <i class="bi bi-list"></i>
-            </button>
-
-            <!-- Menu de Navegação Principal -->
-            <nav id="menu-navegacao" class="acoes-usuario" aria-label="Navegação principal">
-                <ul>
-                    <li>
-                        <a href="#" id="btn-pagina-inicial">
-                            <i class="bi bi-house-door"></i>
-                            <span>Página Inicial</span>
-                        </a>
-                    </li>
-                    <li>
-                        <button type="button" id="btn-geolocalizacao">
-                            <i class="bi bi-crosshair"></i>
-                            <span id="texto-btn-geo">Ativar Localização</span>
-                        </button>
-                    </li>
-                    <li>
-                        <button type="button" id="btn-theme-toggle">
-                            <i id="icone-tema" class="bi bi-moon-stars-fill"></i>
-                            <span id="texto-tema">Tema Escuro</span>
-                        </button>
-                    </li>
-                    <li>
-                        <a href="#" id="btn-trocar-perfil">
-                            <i class="bi bi-person-gear"></i>
-                            <span>Trocar Perfil</span>
-                        </a>
-                    </li>
-                    <li>
-                        <a href="#" id="btn-criar-perfil">
-                            <i class="bi bi-person-plus-fill"></i>
-                            <span>Criar Perfil</span>
-                        </a>
-                    </li>
-                </ul>
-            </nav>
-        </div>
+        <!-- Menu de Navegação Principal -->
+        <nav
+          id="menu-navegacao"
+          class="acoes-usuario"
+          aria-label="Navegação principal"
+        >
+          <ul>
+            <li>
+              <a href="#" id="btn-pagina-inicial">
+                <i class="bi bi-house-door"></i>
+                <span>Página Inicial</span>
+              </a>
+            </li>
+            <li>
+              <button type="button" id="btn-geolocalizacao">
+                <i class="bi bi-crosshair"></i>
+                <span id="texto-btn-geo">Ativar Localização</span>
+              </button>
+            </li>
+            <li>
+              <button type="button" id="btn-theme-toggle">
+                <i id="icone-tema" class="bi bi-moon-stars-fill"></i>
+                <span id="texto-tema">Tema Escuro</span>
+              </button>
+            </li>
+            <li>
+              <a href="#" id="btn-trocar-perfil">
+                <i class="bi bi-person-gear"></i>
+                <span>Trocar Perfil</span>
+              </a>
+            </li>
+            <li>
+              <a href="#" id="btn-criar-perfil">
+                <i class="bi bi-person-plus-fill"></i>
+                <span>Criar Perfil</span>
+              </a>
+            </li>
+          </ul>
+        </nav>
+      </div>
     </header>
 
     <!-- CONTEÚDO PRINCIPAL -->
     <main>
-        <!-- SEÇÃO INICIAL (APRESENTAÇÃO) -->
-        <section id="secao-inicial" class="escondido">
-            <div class="hero-conteudo">
-                <h2>A Emoção do Cinema na Web!</h2>
-                <p class="subtitulo-secao">Descubra séries incríveis baseadas no seu gosto pessoal. Crie seu perfil, escolha os seus gêneros favoritos e encontre a sua próxima maratona em segundos.</p>
-                <button id="btn-hero-criar" class="btn-destaque">
-                    <i class="bi bi-person-plus-fill"></i> Criar Meu Perfil
-                </button>
-            </div>
+      <!-- SEÇÃO INICIAL (APRESENTAÇÃO) -->
+      <section id="secao-inicial" class="escondido">
+        <div class="hero-conteudo">
+          <h2>A Emoção do Cinema na Web!</h2>
+          <p class="subtitulo-secao">
+            Descubra séries incríveis baseadas no seu gosto pessoal. Crie seu
+            perfil, escolha os seus gêneros favoritos e encontre a sua próxima
+            maratona em segundos.
+          </p>
+          <button id="btn-hero-criar" class="btn-destaque">
+            <i class="bi bi-person-plus-fill"></i> Criar Meu Perfil
+          </button>
+        </div>
         <div class="banner-series">
-                <!-- Adicionamos o ID e deixamos vazio para o JS preencher -->
-                <div id="trilho-banner-inicial" class="trilho-series">
-                    <!-- Os 20 cards + 20 duplicados entrarão aqui dinamicamente -->
-                </div>
-            </div>    
-        </section>
+          <!-- Adicionamos o ID e deixamos vazio para o JS preencher -->
+          <div id="trilho-banner-inicial" class="trilho-series">
+            <!-- Os 20 cards + 20 duplicados entrarão aqui dinamicamente  **********usar article -->
+          </div>
+        </div>
+      </section>
 
-        <!-- SEÇÃO DE SELEÇÃO DE PERFIS -->
-        <section id="secao-selecao-perfil" class="escondido">
-            <h2><i class="bi bi-people"></i> Quem está assistindo?</h2>
-            <p class="subtitulo-secao">Selecione um perfil para continuar ou crie um novo no menu.</p>
-            <div id="lista-perfis" class="lista-perfis"></div>
-        </section>
+      <!-- SEÇÃO DE SELEÇÃO DE PERFIS -->
+      <section id="secao-selecao-perfil" class="escondido">
+        <h2><i class="bi bi-people"></i> Quem está assistindo?</h2>
+        <p class="subtitulo-secao">
+          Selecione um perfil para continuar ou crie um novo no menu.
+        </p>
+        <div id="lista-perfis" class="lista-perfis"></div>
+      </section>
 
-        <!-- SEÇÃO DO FORMULÁRIO DE PERFIL (RF02) -->
-        <section id="secao-perfil">
-            <h2>Descubra sua próxima série favorita</h2>
+      <!-- SEÇÃO DO FORMULÁRIO DE PERFIL (RF02) -->
+      <section id="secao-perfil">
+        <h2>Descubra sua próxima série favorita</h2>
 
-            <form id="form-perfil">
-                <div class="campo">
-                    <label for="nome">Seu Nome:</label>
-                    <input type="text" id="nome" name="nome" required placeholder="Ex: Roberto Silva" autocomplete="name">
-                </div>
+        <form id="form-perfil">
+            <!-- usar fieldset (testar) -->
+          <div class="campo">
+            <label for="nome">Seu Nome:</label>
+            <input
+              type="text"
+              id="nome"
+              name="nome"
+              required
+              placeholder="Ex: Roberto Silva"
+              autocomplete="name"
+            />
+          </div>
 
-                <div class="campo">
-                    <label for="idade">Sua Idade:</label>
-                    <input type="number" id="idade" name="idade" min="1" max="120" required placeholder="Ex: 25">
-                </div>
+          <div class="campo">
+            <label for="idade">Sua Idade:</label>
+            <input
+              type="number"
+              id="idade"
+              name="idade"
+              min="1"
+              max="120"
+              required
+              placeholder="Ex: 25"
+            />
+          </div>
 
-                <div class="grupo-input campo">
-                    <label>Gêneros Favoritos</label>
-                    <div id="container-generos" class="caixa-rolagem"></div>
-                    <small class="texto-ajuda">Clique nos botões para selecionar ou desselecionar</small>
-                </div>
+          <div class="grupo-input campo">
+            <label>Gêneros Favoritos</label>
+            <div id="container-generos" class="caixa-rolagem"></div>
+            <small class="texto-ajuda"
+              >Clique nos botões para selecionar ou desselecionar</small
+            >
+          </div>
 
-                <input type="hidden" id="generos-selecionados" name="generos" value="">
+          <input
+            type="hidden"
+            id="generos-selecionados"
+            name="generos"
+            value=""
+          />
 
-                <div class="botoes-form">
-                    <button type="button" id="btn-salvar-perfil" class="btn-acao" disabled>
-                        <i class="bi bi-floppy"></i> Salvar Perfil
-                    </button>
-                    <button type="submit" id="btn-submit" class="btn-acao" disabled>
-                        <i class="bi bi-search"></i> Achar Meu Match
-                    </button>
-                </div>
-            </form>
-        </section>
+          <div class="botoes-form">
+            <button
+              type="button"
+              id="btn-salvar-perfil"
+              class="btn-acao"
+              disabled
+            >
+              <i class="bi bi-floppy"></i> Salvar Perfil
+            </button>
+            <button type="submit" id="btn-submit" class="btn-acao" disabled>
+              <i class="bi bi-search"></i> Achar Meu Match
+            </button>
+          </div>
+        </form>
+      </section>
 
-        <!-- SEÇÃO DE RESULTADOS REFORMULADA COM ESTEIRAS (RF08) -->
-        <section id="secao-resultados" class="escondido">
-            <!-- Seção 1: Maior Compatibilidade -->
-            <div class="secao-matchs">
-                <h2 id="titulo-match-alto" class="titulo-secao-match"></h2>
-                <div class="carrossel-container">
-                    <button type="button" class="btn-carrossel btn-prev" id="btn-prev-alto" aria-label="Anterior">
-                        <i class="bi bi-chevron-left"></i>
-                    </button>
-                    <div id="esteira-match-alto" class="esteira-carrossel"></div>
-                    <button type="button" class="btn-carrossel btn-next" id="btn-next-alto" aria-label="Próximo">
-                        <i class="bi bi-chevron-right"></i>
-                    </button>
-                </div>
-            </div>
-
-            <!-- Seção 2: Outras Recomendações -->
-            <div class="secao-matchs mt-4">
-                <h2 class="titulo-secao-match">Os matchs que você também pode curtir:</h2>
-                <div class="carrossel-container">
-                    <button type="button" class="btn-carrossel btn-prev" id="btn-prev-medio" aria-label="Anterior">
-                        <i class="bi bi-chevron-left"></i>
-                    </button>
-                    <div id="esteira-match-medio" class="esteira-carrossel"></div>
-                    <button type="button" class="btn-carrossel btn-next" id="btn-next-medio" aria-label="Próximo">
-                        <i class="bi bi-chevron-right"></i>
-                    </button>
-                </div>
-            </div>
-
-            <!-- Botão Busca Avançada -->
-            <div class="container-busca-avancada">
-                <button type="button" id="btn-abrir-busca-avancada" class="btn-destaque">
-                    <i class="bi bi-search"></i> Busca Avançada
-                </button>
-            </div>
-        </section>
-
-        <!-- MODAL DE BUSCA AVANÇADA DE SÉRIES -->
-        <div id="modal-busca-avancada" class="modal-overlay escondido">
-            <div class="modal-conteudo">
-                <div class="modal-header">
-                    <h2><i class="bi bi-collection-play"></i> Busca Avançada no Catálogo</h2>
-                    <button type="button" id="btn-fechar-busca-avancada" class="btn-fechar-modal">
-                        <i class="bi bi-x-lg"></i>
-                    </button>
-                </div>
-                <div class="modal-body">
-                    <div class="caixa-busca">
-                        <i class="bi bi-search icone-busca"></i>
-                        <input type="search" id="input-busca-avancada" placeholder="Digite o nome de uma série para pesquisar...">
-                    </div>
-                    <div id="resultados-busca-avancada" class="grid-busca-avancada"></div>
-                </div>
-            </div>
+      <!-- SEÇÃO DE RESULTADOS REFORMULADA COM ESTEIRAS (RF08) -->
+      <section id="secao-resultados" class="escondido">
+        <!-- Seção 1: Maior Compatibilidade -->
+        <div class="secao-matchs">
+          <h2 id="titulo-match-alto" class="titulo-secao-match"></h2>
+          <div class="carrossel-container">
+            <button
+              type="button"
+              class="btn-carrossel btn-prev"
+              id="btn-prev-alto"
+              aria-label="Anterior"
+            >
+              <i class="bi bi-chevron-left"></i>
+            </button>
+            <div id="esteira-match-alto" class="esteira-carrossel"></div>
+            <button
+              type="button"
+              class="btn-carrossel btn-next"
+              id="btn-next-alto"
+              aria-label="Próximo"
+            >
+              <i class="bi bi-chevron-right"></i>
+            </button>
+          </div>
         </div>
 
+        <!-- Seção 2: Outras Recomendações *******usar secao dentro de secao-->
+        <div class="secao-matchs mt-4">
+          <h2 class="titulo-secao-match">
+            Os matchs que você também pode curtir:
+          </h2>
+          <div class="carrossel-container">
+            <button
+              type="button"
+              class="btn-carrossel btn-prev"
+              id="btn-prev-medio"
+              aria-label="Anterior"
+            >
+              <i class="bi bi-chevron-left"></i>
+            </button>
+            <div id="esteira-match-medio" class="esteira-carrossel"></div>
+            <button
+              type="button"
+              class="btn-carrossel btn-next"
+              id="btn-next-medio"
+              aria-label="Próximo"
+            >
+              <i class="bi bi-chevron-right"></i>
+            </button>
+          </div>
+        </div>
+
+        <!-- Botão Busca Avançada -->
+        <div class="container-busca-avancada">
+          <button
+            type="button"
+            id="btn-abrir-busca-avancada"
+            class="btn-destaque"
+          >
+            <i class="bi bi-search"></i> Busca Avançada
+          </button>
+        </div>
+      </section>
+
+      <!-- MODAL DE BUSCA AVANÇADA DE SÉRIES -->
+      <div id="modal-busca-avancada" class="modal-overlay escondido">
+        <div class="modal-conteudo">
+          <div class="modal-header">
+            <h2>
+              <i class="bi bi-collection-play"></i> Busca Avançada no Catálogo
+            </h2>
+            <button
+              type="button"
+              id="btn-fechar-busca-avancada"
+              class="btn-fechar-modal"
+            >
+              <i class="bi bi-x-lg"></i>
+            </button>
+          </div>
+          <div class="modal-body">
+            <div class="caixa-busca">
+              <i class="bi bi-search icone-busca"></i>
+              <input
+                type="search"
+                id="input-busca-avancada"
+                placeholder="Digite o nome de uma série para pesquisar..."
+              />
+            </div>
+            <div
+              id="resultados-busca-avancada"
+              class="grid-busca-avancada"
+            ></div>
+          </div>
+        </div>
+      </div>
     </main>
 
     <!-- RODAPÉ DA APLICAÇÃO -->
     <footer>
-        <p>&copy; 2026 Projeto CineMatch Web: Desenvolvido por <strong>Diego Lopes</strong>, <strong>Edson Antonio</strong> e <strong>Roberto Silva</strong> — Qualificação em Desenvolvimento Mobile com React Native (SCTEC/SENAI).</p>
+      <p>
+        &copy; 2026 Projeto CineMatch Web: Desenvolvido por
+        <strong>Diego Lopes</strong>, <strong>Edson Antonio</strong> e
+        <strong>Roberto Silva</strong> — Qualificação em Desenvolvimento Mobile
+        com React Native (SCTEC/SENAI).
+      </p>
     </footer>
 
     <!-- Motor Oculto do Google Tradutor -->
-    <div id="google_translate_element" style="display: none;"></div>
+    <div id="google_translate_element" style="display: none"></div>
     <script type="text/javascript">
-        function googleTranslateElementInit() {
-            new google.translate.TranslateElement({
-                pageLanguage: 'en', // Enganamos o widget dizendo que o texto que vem da API é em inglês
-                includedLanguages: 'pt', // Queremos apenas que ele traduza para português
-                autoDisplay: false
-            }, 'google_translate_element');
-        }
+      function googleTranslateElementInit() {
+        new google.translate.TranslateElement(
+          {
+            pageLanguage: "en", // Enganamos o widget dizendo que o texto que vem da API é em inglês
+            includedLanguages: "pt", // Queremos apenas que ele traduza para português
+            autoDisplay: false,
+          },
+          "google_translate_element",
+        );
+      }
     </script>
-    <script type="text/javascript" src="https://translate.google.com/translate_a/element.js?cb=googleTranslateElementInit"></script>
+    <script
+      type="text/javascript"
+      src="https://translate.google.com/translate_a/element.js?cb=googleTranslateElementInit"
+    ></script>
 
     <!-- Módulo JS Principal (RF14) -->
     <script type="module" src="./scripts/script.js"></script>
 
     <!-- Módulo JS Principal (RF14) -->
     <script type="module" src="./scripts/script.js"></script>
-
-</body>
-
+  </body>
 </html>
