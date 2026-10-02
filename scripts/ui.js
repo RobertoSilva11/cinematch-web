@@ -29,22 +29,46 @@ let filtroIdiomaAtivo = false;
 let localizacaoAtiva = false;
 const elementosErro = [];
 
-export function exibirMensagemFeedback(elementoContainer, textoMensagem, ehErro = false, temSpinner = false) {
-    elementoContainer.innerHTML = ""; 
-    const p = document.createElement("p");
-    p.className = "mensagem-feedback";
-    
-    if (temSpinner) {
-        const icon = document.createElement("i");
-        icon.className = "bi bi-arrow-repeat spin";
-        p.appendChild(icon);
-        p.appendChild(document.createTextNode(" "));
-    }
-    
-    p.appendChild(document.createTextNode(textoMensagem));
-    if (ehErro) p.style.color = "#e63946";
-    
-    elementoContainer.appendChild(p);
+// --- RF11: CLOSURE ---
+// Preserva o estado de quantas buscas o utilizador fez nesta sessão
+const contadorSessao = (function () {
+  let calculos = 0;
+  return function () {
+    calculos += 1;
+    return calculos;
+  };
+})();
+
+// --- RF10: CALLBACK ---
+// Função que será passada como argumento para controlar o fluxo após renderizar
+export function exibirBoasVindas(nome, tentativas) {
+  const tituloAlto = document.getElementById("titulo-match-alto");
+  if (tituloAlto) {
+    tituloAlto.textContent = `${nome}, aqui está o seu match ideal (Busca nº ${tentativas} na sessão):`;
+  }
+}
+
+export function exibirMensagemFeedback(
+  elementoContainer,
+  textoMensagem,
+  ehErro = false,
+  temSpinner = false,
+) {
+  elementoContainer.innerHTML = "";
+  const p = document.createElement("p");
+  p.className = "mensagem-feedback";
+
+  if (temSpinner) {
+    const icon = document.createElement("i");
+    icon.className = "bi bi-arrow-repeat spin";
+    p.appendChild(icon);
+    p.appendChild(document.createTextNode(" "));
+  }
+
+  p.appendChild(document.createTextNode(textoMensagem));
+  if (ehErro) p.style.color = "#e63946";
+
+  elementoContainer.appendChild(p);
 }
 
 /**
@@ -246,20 +270,24 @@ export function validarDadosFormPerfil() {
 }
 
 /**
- * Cria o elemento HTML de um Card de Série
+ * Cria o elemento HTML de um Card de Série (RF08)
  */
-function criarCardSerie(serie, match = null) {
+function criarCardSerie(serie, matchDetalhes = null) {
   const card = document.createElement("article");
   card.className = "card-serie";
 
-  const imagemPoster = serie.imagemMedia || serie.imagemOriginal || "https://via.placeholder.com/210x295?text=Sem+Capa";
+  const imagemPoster =
+    serie.imagemMedia ||
+    serie.imagemOriginal ||
+    "https://via.placeholder.com/210x295?text=Sem+Capa";
   const nota = serie.avaliacaoNota ? `${serie.avaliacaoNota} / 10` : "N/A";
   const sinopseExibicao = obterSinopse(serie);
 
-  if (match !== null && match !== undefined) {
+  if (matchDetalhes) {
     const badge = document.createElement("div");
-    badge.className = `badge-match ${match >= 50 ? "match-alto" : "match-medio"} notranslate`;
-    badge.textContent = `${match}% Match`;
+    // Usa a classificação para definir a cor
+    badge.className = `badge-match ${matchDetalhes.percentual >= 50 ? "match-alto" : "match-medio"} notranslate`;
+    badge.textContent = `${matchDetalhes.percentual}% - ${matchDetalhes.classificacao}`;
     card.appendChild(badge);
   }
 
@@ -268,6 +296,10 @@ function criarCardSerie(serie, match = null) {
   img.alt = `Poster de ${serie.titulo}`;
   img.className = "img-poster";
   img.loading = "lazy";
+  img.onerror = function () {
+    card.remove();
+  };
+
   card.appendChild(img);
 
   const conteudo = document.createElement("div");
@@ -282,6 +314,25 @@ function criarCardSerie(serie, match = null) {
   generos.textContent = (serie.generos || []).join(" • ");
   conteudo.appendChild(generos);
 
+  // Injeção dos dados exigidos pelo RF08 (Gêneros em comum e não explorados)
+  if (matchDetalhes) {
+    const detalhesMatch = document.createElement("div");
+    detalhesMatch.style.fontSize = "0.75rem";
+    detalhesMatch.style.color = "var(--primary-accent)";
+    detalhesMatch.style.marginBottom = "0.5rem";
+
+    const pComuns = document.createElement("p");
+    pComuns.innerHTML = `<strong>Em comum:</strong> ${matchDetalhes.comuns.join(", ") || "Nenhum"}`;
+
+    const pFaltam = document.createElement("p");
+    pFaltam.innerHTML = `<strong>Não explorados:</strong> ${matchDetalhes.naoExplorados.join(", ") || "Nenhum"}`;
+    pFaltam.style.color = "var(--text-muted)";
+
+    detalhesMatch.appendChild(pComuns);
+    detalhesMatch.appendChild(pFaltam);
+    conteudo.appendChild(detalhesMatch);
+  }
+
   const sinopse = document.createElement("p");
   sinopse.className = "sinopse-card";
   sinopse.textContent = sinopseExibicao;
@@ -292,7 +343,7 @@ function criarCardSerie(serie, match = null) {
 
   const spanNota = document.createElement("span");
   spanNota.className = "nota-card";
-  
+
   const iconeEstrela = document.createElement("i");
   iconeEstrela.className = "bi bi-star-fill";
   spanNota.appendChild(iconeEstrela);
@@ -305,11 +356,11 @@ function criarCardSerie(serie, match = null) {
   link.rel = "noopener noreferrer";
   link.className = "btn-detalhes";
   link.textContent = "Ver Mais ";
-  
+
   const iconeSeta = document.createElement("i");
   iconeSeta.className = "bi bi-box-arrow-up-right";
   link.appendChild(iconeSeta);
-  
+
   rodape.appendChild(link);
   conteudo.appendChild(rodape);
   card.appendChild(conteudo);
@@ -318,35 +369,46 @@ function criarCardSerie(serie, match = null) {
 }
 
 /**
- * Transforma os dados da API em objetos Series
+ * Transforma os dados da API em objetos Series (RF05 - Tratamento de dados limpos)
  */
 export function transformarDadosApiEmSeries(dados) {
-
-    return dados.map(dado =>
+  // Filtra séries que não têm gêneros, não têm avaliação OU NÃO TÊM IMAGEM
+  return dados
+    .filter(
+      (dado) =>
+        dado.genres &&
+        dado.genres.length > 0 &&
+        dado.rating &&
+        dado.rating.average &&
+        dado.image &&
+        (dado.image.medium || dado.image.original),
+    )
+    .map(
+      (dado) =>
         new Series(
-            dado.id,
-            dado.name,
-            dado.type,
-            dado.genres ?? [],
-            null,
-            null,
-            null,
-            dado.image?.medium ?? null,
-            dado.image?.original ?? null,
-            dado.summary ?? null,
-            dado.rating?.average ?? null,
-            dado.language ?? null,
-            dado.status ?? null,
-            dado.runtime ?? null,
-            dado.url
-        )
+          dado.id,
+          dado.name,
+          dado.type,
+          dado.genres,
+          null,
+          null,
+          null,
+          dado.image.medium ?? null,
+          dado.image.original ?? null,
+          dado.summary ?? null,
+          dado.rating.average,
+          dado.language ?? null,
+          dado.status ?? null,
+          dado.runtime ?? null,
+          dado.url,
+        ),
     );
 }
 
 /**
  * Consome a API do TVMaze, separa em duas seções de recomendação com carrossel
  */
-export async function renderizarSeries() {
+export async function renderizarSeries(callbackBoasVindas = exibirBoasVindas) {
   const esteiraAlto = document.getElementById("esteira-match-alto");
   const esteiraMedio = document.getElementById("esteira-match-medio");
   const tituloAlto = document.getElementById("titulo-match-alto");
@@ -356,65 +418,82 @@ export async function renderizarSeries() {
   const perfilAtivo = JSON.parse(
     localStorage.getItem("cineMatch_perfil_ativo"),
   );
-  /**CREATELEMENT E APPENDCHILD NO ESTEIRA ALTO */
+
   if (
     !perfilAtivo ||
     !perfilAtivo.generos ||
     perfilAtivo.generos.length === 0
   ) {
-    exibirMensagemFeedback(esteiraAlto, "Nenhum perfil ativo encontrado. Por favor, crie ou selecione um perfil.");
+    exibirMensagemFeedback(
+      esteiraAlto,
+      "Nenhum perfil ativo encontrado. Por favor, crie ou selecione um perfil.",
+    );
     return;
-  }
-
-  if (tituloAlto) {
-    tituloAlto.textContent = `${perfilAtivo.nome}, escolha o match ideal que encontramos para você:`;
   }
 
   try {
     esteiraMedio.innerHTML = "";
 
-    // Chamada Busca Catálogo Completo API (api.js) - Transforma os Dados p/ Séries
+    // Chamada Busca Catálogo Completo API (api.js)
     const series = transformarDadosApiEmSeries(await buscarCatalogo());
 
-    // Calcula o % de Match e ordena de forma decrescente
+    // Calcula o Match Detalhado e ordena
     const seriesComMatch = series
-        .map((serie) => ({
+      .map((serie) => ({
         serie,
-        match: MatchCalculator.calcularMatch(
-            perfilAtivo.generos,
-            serie.generos || []
-        )
-    }))
-    .sort((a, b) => b.match - a.match);
+        matchDetalhes: MatchCalculator.calcularMatchDetalhado(
+          perfilAtivo.generos,
+          serie.generos || [],
+        ),
+      }))
+      .sort((a, b) => b.matchDetalhes.percentual - a.matchDetalhes.percentual);
 
-    // Separação em duas categorias (Match >= 50% e Match < 50%)
-    const maiorCompatibilidade = seriesComMatch.filter((s) => s.match >= 50);
-    const menosRecomendadas = seriesComMatch.filter((s) => s.match < 50);
+    // Separação em duas categorias
+    const maiorCompatibilidade = seriesComMatch.filter(
+      (s) => s.matchDetalhes.percentual >= 50,
+    );
+    const menosRecomendadas = seriesComMatch.filter(
+      (s) => s.matchDetalhes.percentual < 50,
+    );
 
     esteiraAlto.innerHTML = "";
     esteiraMedio.innerHTML = "";
 
     // Renderiza Seção 1
     if (maiorCompatibilidade.length === 0) {
-      exibirMensagemFeedback(esteiraAlto, "Nenhuma série com alta compatibilidade para os gêneros escolhidos.");
+      exibirMensagemFeedback(
+        esteiraAlto,
+        "Nenhuma série com alta compatibilidade para os gêneros escolhidos.",
+      );
     } else {
-      maiorCompatibilidade.forEach(({serie, match}) => {
-        esteiraAlto.appendChild(criarCardSerie(serie, match));
+      maiorCompatibilidade.forEach(({ serie, matchDetalhes }) => {
+        esteiraAlto.appendChild(criarCardSerie(serie, matchDetalhes));
       });
     }
 
     // Renderiza Seção 2
-    menosRecomendadas.forEach(({serie, match}) => {
-      esteiraMedio.appendChild(criarCardSerie(serie, match));
+    menosRecomendadas.forEach(({ serie, matchDetalhes }) => {
+      esteiraMedio.appendChild(criarCardSerie(serie, matchDetalhes));
     });
+
     // Liga a inteligência de teclado nas esteiras
     aplicarNavegacaoTecladoAcessivel(esteiraAlto);
     aplicarNavegacaoTecladoAcessivel(esteiraMedio);
     configurarControlesCarrossel();
     configurarModalBuscaAvancada();
+
+    // EXECUÇÃO DO CALLBACK + CLOSURE (RF10 E RF11)
+    if (callbackBoasVindas && typeof callbackBoasVindas === "function") {
+      const totalBuscas = contadorSessao();
+      callbackBoasVindas(perfilAtivo.nome, totalBuscas);
+    }
   } catch (erro) {
     console.error("Erro ao carregar séries:", erro);
-    exibirMensagemFeedback(esteiraAlto, "Erro ao carregar os dados da API TVMaze. Tente novamente mais tarde.", true);
+    exibirMensagemFeedback(
+      esteiraAlto,
+      "Erro ao carregar os dados da API TVMaze. Tente novamente mais tarde.",
+      true,
+    );
   }
 }
 
@@ -455,10 +534,16 @@ export function configurarModalBuscaAvancada() {
   const btnFechar = document.getElementById("btn-fechar-busca-avancada");
   const inputBusca = document.getElementById("input-busca-avancada");
   const containerResultados = document.getElementById(
-    "resultados-busca-avancada"
+    "resultados-busca-avancada",
   );
 
-  if (!modal || !btnAbrir || !btnFechar || !inputBusca || !containerResultados) {
+  if (
+    !modal ||
+    !btnAbrir ||
+    !btnFechar ||
+    !inputBusca ||
+    !containerResultados
+  ) {
     return;
   }
 
@@ -470,7 +555,7 @@ export function configurarModalBuscaAvancada() {
     const termo = filtro.trim().toLowerCase();
 
     const filtradas = series.filter((serie) =>
-      serie.titulo.toLowerCase().includes(termo)
+      serie.titulo.toLowerCase().includes(termo),
     );
 
     if (filtradas.length === 0) {
@@ -511,8 +596,8 @@ export function configurarModalBuscaAvancada() {
   };
 
   // Permite fechar o modal com a tecla ESC a qualquer momento
-  document.addEventListener('keydown', (e) => {
-    if (e.key === 'Escape' && !modal.classList.contains('escondido')) {
+  document.addEventListener("keydown", (e) => {
+    if (e.key === "Escape" && !modal.classList.contains("escondido")) {
       btnFechar.click();
     }
   });
@@ -639,15 +724,15 @@ export function configurarFormularioPerfil() {
       const btnInfo = document.createElement("button");
       btnInfo.type = "button";
       btnInfo.className = "info-perfil notranslate";
-      
+
       // Criar o texto em negrito (Nome)
       const strong = document.createElement("strong");
       strong.textContent = perfil.nome;
-      
+
       // Criar o texto menor (Idade e Gêneros)
       const small = document.createElement("small");
       small.textContent = ` ${perfil.idade} anos • ${perfil.generos.length} gêneros favoritos`;
-      
+
       // Injetar os textos no botão de forma segura (Sem innerHTML)
       btnInfo.appendChild(strong);
       btnInfo.appendChild(small);
@@ -660,7 +745,7 @@ export function configurarFormularioPerfil() {
       btnDeletar.type = "button";
       btnDeletar.className = "btn-deletar-perfil";
       btnDeletar.title = "Excluir perfil";
-      
+
       // Criar o ícone do Bootstrap (Sem innerHTML)
       const iconeDeletar = document.createElement("i");
       iconeDeletar.className = "bi bi-x-lg";
@@ -850,98 +935,109 @@ export async function carregarBannerInicial() {
   if (!trilho) return;
 
   try {
-    // Chamada Busca Catálogo Completo API (api.js) - Transforma os Dados p/ Séries
     const series = transformarDadosApiEmSeries(await buscarCatalogo());
 
-    // Ordena pela nota e pega as 20 melhores
     const top20 = series
       .sort((a, b) => (b.avaliacaoNota || 0) - (a.avaliacaoNota || 0))
       .slice(0, 20);
 
-    // Função interna para montar o bloco de 20 cards
-    const gerarBlocoDeCards = () => {
-      let htmlCards = "";
+    trilho.innerHTML = ""; // Limpa a área por segurança
+
+    // Função construtora 100% baseada no DOM (sem innerHTML)
+    const preencherTrilho = () => {
       top20.forEach((serie) => {
         const imagem =
           serie.imagemMedia ||
           serie.imagemOriginal ||
           "https://via.placeholder.com/200x295?text=Sem+Capa";
-        htmlCards += `<div class="card-banner"><img src="${imagem}" alt="${serie.titulo}" loading="lazy"></div>`;
+
+        const divCard = document.createElement("div");
+        divCard.className = "card-banner";
+
+        const img = document.createElement("img");
+        img.src = imagem;
+        img.alt = serie.titulo;
+        img.loading = "lazy";
+
+        divCard.appendChild(img);
+        trilho.appendChild(divCard);
       });
-      return htmlCards;
     };
 
-    // Injeta os 20 cards originais + 20 duplicados (Necessário para a animação CSS não falhar)
-    trilho.innerHTML = gerarBlocoDeCards() + gerarBlocoDeCards();
+    // Injeta as 20 séries originais + 20 duplicadas (Para a animação CSS não falhar)
+    preencherTrilho();
+    preencherTrilho();
   } catch (erro) {
     console.error("Erro ao carregar o banner inicial:", erro);
   }
 }
 
-
 /**
  * Aplica o padrão Roving Tabindex para acessibilidade de teclado em carrosséis e grelhas
  */
 function aplicarNavegacaoTecladoAcessivel(container, ehGrid = false) {
-    if (!container) return;
-    
-    const links = container.querySelectorAll('.btn-detalhes');
-    if (links.length === 0) return;
+  if (!container) return;
 
-    links.forEach((link, index) => {
-        link.tabIndex = index === 0 ? 0 : -1;
+  const links = container.querySelectorAll(".btn-detalhes");
+  if (links.length === 0) return;
 
-        link.addEventListener('focus', () => {
-            link.closest('.card-serie').classList.add('card-focado');
-        });
+  links.forEach((link, index) => {
+    link.tabIndex = index === 0 ? 0 : -1;
 
-        link.addEventListener('blur', () => {
-            link.closest('.card-serie').classList.remove('card-focado');
-        });
-
-        link.addEventListener('keydown', (e) => {
-            let novoIndex = -1;
-
-            // Calcula dinamicamente quantas colunas o grid tem no momento (responsividade)
-            let colunas = 1;
-            if (ehGrid && links.length > 1) {
-                const cards = Array.from(container.querySelectorAll('.card-serie'));
-                colunas = cards.filter(c => c.offsetTop === cards[0].offsetTop).length || 1;
-            }
-
-            if (e.key === 'ArrowRight') {
-                novoIndex = index + 1 < links.length ? index + 1 : index;
-                e.preventDefault();
-            } else if (e.key === 'ArrowLeft') {
-                novoIndex = index - 1 >= 0 ? index - 1 : index;
-                e.preventDefault();
-            } else if (ehGrid && e.key === 'ArrowDown') {
-                novoIndex = index + colunas < links.length ? index + colunas : index;
-                e.preventDefault();
-            } else if (ehGrid && e.key === 'ArrowUp') {
-                novoIndex = index - colunas >= 0 ? index - colunas : index;
-                e.preventDefault();
-            } else if (e.key === 'Tab' && !e.shiftKey) {
-                // No modal (Grid), o Tab "pula" os cards e vai direto para o botão fechar (X)
-                if (ehGrid) {
-                    e.preventDefault();
-                    const btnFechar = document.getElementById('btn-fechar-busca-avancada');
-                    if (btnFechar) btnFechar.focus();
-                }
-                // Nos carrosséis, o Tab nativo já salta para a esteira de baixo graças ao tabIndex = -1 !
-            }
-
-            if (novoIndex !== -1 && novoIndex !== index) {
-                links[index].tabIndex = -1;
-                links[novoIndex].tabIndex = 0;
-                links[novoIndex].focus();
-
-                links[novoIndex].closest('.card-serie').scrollIntoView({
-                    behavior: 'smooth',
-                    block: 'nearest',
-                    inline: 'center'
-                });
-            }
-        });
+    link.addEventListener("focus", () => {
+      link.closest(".card-serie").classList.add("card-focado");
     });
+
+    link.addEventListener("blur", () => {
+      link.closest(".card-serie").classList.remove("card-focado");
+    });
+
+    link.addEventListener("keydown", (e) => {
+      let novoIndex = -1;
+
+      // Calcula dinamicamente quantas colunas o grid tem no momento (responsividade)
+      let colunas = 1;
+      if (ehGrid && links.length > 1) {
+        const cards = Array.from(container.querySelectorAll(".card-serie"));
+        colunas =
+          cards.filter((c) => c.offsetTop === cards[0].offsetTop).length || 1;
+      }
+
+      if (e.key === "ArrowRight") {
+        novoIndex = index + 1 < links.length ? index + 1 : index;
+        e.preventDefault();
+      } else if (e.key === "ArrowLeft") {
+        novoIndex = index - 1 >= 0 ? index - 1 : index;
+        e.preventDefault();
+      } else if (ehGrid && e.key === "ArrowDown") {
+        novoIndex = index + colunas < links.length ? index + colunas : index;
+        e.preventDefault();
+      } else if (ehGrid && e.key === "ArrowUp") {
+        novoIndex = index - colunas >= 0 ? index - colunas : index;
+        e.preventDefault();
+      } else if (e.key === "Tab" && !e.shiftKey) {
+        // No modal (Grid), o Tab "pula" os cards e vai direto para o botão fechar (X)
+        if (ehGrid) {
+          e.preventDefault();
+          const btnFechar = document.getElementById(
+            "btn-fechar-busca-avancada",
+          );
+          if (btnFechar) btnFechar.focus();
+        }
+        // Nos carrosséis, o Tab nativo já salta para a esteira de baixo graças ao tabIndex = -1 !
+      }
+
+      if (novoIndex !== -1 && novoIndex !== index) {
+        links[index].tabIndex = -1;
+        links[novoIndex].tabIndex = 0;
+        links[novoIndex].focus();
+
+        links[novoIndex].closest(".card-serie").scrollIntoView({
+          behavior: "smooth",
+          block: "nearest",
+          inline: "center",
+        });
+      }
+    });
+  });
 }

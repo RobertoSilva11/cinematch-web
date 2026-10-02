@@ -28,7 +28,7 @@
     <meta property="og:type" content="website" />
 
     <title>CineMatch Web: Recomendação de Séries</title>
-    <link rel="icon" href="data:;base64,iVBORw0KGgo=">
+    <link rel="icon" href="data:;base64,iVBORw0KGgo=" />
     <!-- Bootstrap Icons -->
     <link
       rel="stylesheet"
@@ -58,7 +58,11 @@
 
       <div class="header-direita">
         <!-- Indicador Discreto de Cidade -->
-        <div id="indicador-cidade" class="indicador-cidade escondido" aria-live="polite">
+        <div
+          id="indicador-cidade"
+          class="indicador-cidade escondido"
+          aria-live="polite"
+        >
           <i class="bi bi-geo-alt-fill" aria-hidden="true"></i>
           <span id="texto-cidade">Detectando local...</span>
         </div>
@@ -120,8 +124,8 @@
       <!-- SEÇÃO INICIAL (APRESENTAÇÃO) -->
       <section id="secao-inicial" class="escondido">
         <div class="hero-conteudo">
-          <h2>A Emoção do Cinema na Web!</h2>
-          <p class="subtitulo-secao">
+          <h1>A Emoção do Cinema na Web!</h1>
+          <p class="subtitulo-secao notranslate">
             Descubra séries incríveis baseadas no seu gosto pessoal. Crie seu
             perfil, escolha os seus gêneros favoritos e encontre a sua próxima
             maratona em segundos.
@@ -140,7 +144,9 @@
 
       <!-- SEÇÃO DE SELEÇÃO DE PERFIS -->
       <section id="secao-selecao-perfil" class="escondido">
-        <h2 class="notranslate"><i class="bi bi-people"></i> Quem está assistindo?</h2>
+        <h2 class="notranslate">
+          <i class="bi bi-people"></i> Quem está assistindo?
+        </h2>
         <p class="subtitulo-secao">
           Selecione um perfil para continuar ou crie um novo no menu.
         </p>
@@ -152,7 +158,7 @@
         <h2>Descubra sua próxima série favorita</h2>
 
         <form id="form-perfil">
-            <!-- usar fieldset (testar) -->
+          <!-- usar fieldset (testar) -->
           <div class="campo">
             <label for="nome">Seu Nome:</label>
             <input
@@ -178,9 +184,18 @@
             />
           </div>
 
-          <fieldset class="grupo-input campo" style="border: none; padding: 0;">
-            <legend style="font-size: 0.8rem; font-weight: 700; margin-bottom: 0.4rem;">Gêneros Favoritos</legend>
-            <div id="container-generos" class="caixa-rolagem" role="group" aria-label="Seleção de gêneros"></div>
+          <fieldset class="grupo-input campo" style="border: none; padding: 0">
+            <legend
+              style="font-size: 0.8rem; font-weight: 700; margin-bottom: 0.4rem"
+            >
+              Gêneros Favoritos
+            </legend>
+            <div
+              id="container-generos"
+              class="caixa-rolagem"
+              role="group"
+              aria-label="Seleção de gêneros"
+            ></div>
             <small class="texto-ajuda"
               >Clique nos botões para selecionar ou desselecionar</small
             >
@@ -211,20 +226,29 @@
 
       <!-- SEÇÃO DE RESULTADOS REFORMULADA COM ESTEIRAS (RF08) -->
       <section id="secao-resultados" class="escondido">
-        
-<!-- Seção 1: Maior Compatibilidade -->
+        <!-- Seção 1: Maior Compatibilidade -->
         <section class="secao-matchs" aria-labelledby="titulo-match-alto">
           <h2 id="titulo-match-alto" class="titulo-secao-match"></h2>
-          
+
           <div class="carrossel-container">
             <!-- 1º Botões agrupados ANTES da esteira para a ordem do TAB -->
-            <button type="button" class="btn-carrossel btn-prev" id="btn-prev-alto" aria-label="Anterior">
+            <button
+              type="button"
+              class="btn-carrossel btn-prev"
+              id="btn-prev-alto"
+              aria-label="Anterior"
+            >
               <i class="bi bi-chevron-left"></i>
             </button>
-            <button type="button" class="btn-carrossel btn-next" id="btn-next-alto" aria-label="Próximo">
+            <button
+              type="button"
+              class="btn-carrossel btn-next"
+              id="btn-next-alto"
+              aria-label="Próximo"
+            >
               <i class="bi bi-chevron-right"></i>
             </button>
-            
+
             <!-- 2º A esteira fica estruturalmente depois dos botões -->
             <div id="esteira-match-alto" class="esteira-carrossel"></div>
           </div>
@@ -235,16 +259,26 @@
           <h2 class="titulo-secao-match notranslate">
             Os matchs que você também pode curtir:
           </h2>
-          
+
           <div class="carrossel-container">
             <!-- 1º Botões agrupados ANTES da esteira -->
-            <button type="button" class="btn-carrossel btn-prev" id="btn-prev-medio" aria-label="Anterior">
+            <button
+              type="button"
+              class="btn-carrossel btn-prev"
+              id="btn-prev-medio"
+              aria-label="Anterior"
+            >
               <i class="bi bi-chevron-left"></i>
             </button>
-            <button type="button" class="btn-carrossel btn-next" id="btn-next-medio" aria-label="Próximo">
+            <button
+              type="button"
+              class="btn-carrossel btn-next"
+              id="btn-next-medio"
+              aria-label="Próximo"
+            >
               <i class="bi bi-chevron-right"></i>
             </button>
-            
+
             <!-- 2º A esteira fica estruturalmente depois dos botões -->
             <div id="esteira-match-medio" class="esteira-carrossel"></div>
           </div>
@@ -262,13 +296,19 @@
       </section>
 
       <!-- MODAL DE BUSCA AVANÇADA DE SÉRIES -->
-      <section id="modal-busca-avancada" class="modal-overlay escondido" role="dialog" aria-modal="true" aria-labelledby="titulo-modal-busca">
-        
+      <section
+        id="modal-busca-avancada"
+        class="modal-overlay escondido"
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="titulo-modal-busca"
+      >
         <article class="modal-conteudo">
           <!-- Cabeçalho do Modal -->
           <header class="modal-header">
             <h2 id="titulo-modal-busca" class="notranslate">
-              <i class="bi bi-collection-play" aria-hidden="true"></i> Busca Avançada no Catálogo
+              <i class="bi bi-collection-play" aria-hidden="true"></i> Busca
+              Avançada no Catálogo
             </h2>
             <button
               type="button"
@@ -279,10 +319,12 @@
               <i class="bi bi-x-lg" aria-hidden="true"></i>
             </button>
           </header>
-          
+
           <!-- Corpo do Modal -->
-          <section class="modal-body" aria-label="Área de pesquisa e resultados">
-            
+          <section
+            class="modal-body"
+            aria-label="Área de pesquisa e resultados"
+          >
             <!-- Elemento Semântico HTML5 para áreas de busca -->
             <search class="caixa-busca">
               <i class="bi bi-search icone-busca" aria-hidden="true"></i>
@@ -300,10 +342,8 @@
               class="grid-busca-avancada"
               aria-label="Grade de resultados da busca"
             ></section>
-
           </section>
         </article>
-        
       </section>
     </main>
 
@@ -335,9 +375,6 @@
       type="text/javascript"
       src="https://translate.google.com/translate_a/element.js?cb=googleTranslateElementInit"
     ></script>
-
-    <!-- Módulo JS Principal (RF14) -->
-    <script type="module" src="./scripts/script.js"></script>
 
     <!-- Módulo JS Principal (RF14) -->
     <script type="module" src="./scripts/script.js"></script>
