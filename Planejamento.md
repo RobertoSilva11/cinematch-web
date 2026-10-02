@@ -1,12 +1,12 @@
 # 🎬 CineMatch Web: Recomendação de Séries em Tempo Real
 
-O **CineMatch Web** é a evolução com interface gráfica do motor de recomendação CineMatch original (antes executado via terminal). A aplicação resolve o problema da indecisão na hora de escolher uma série, permitindo que o utilizador crie um perfil com os seus géneros favoritos e receba recomendações instantâneas, baseadas num catálogo real de séries, diretamente no navegador.
+O **CineMatch Web** é a evolução com interface gráfica do motor de recomendação CineMatch original (antes executado via terminal). A aplicação resolve o problema da indecisão na hora de escolher uma série, permitindo que o utilizador crie um perfil com os seus gêneros favoritos e receba recomendações instantâneas, baseadas num catálogo real de séries, diretamente no navegador.
 
 ---
 
 ## 📋 Organização e Kanban (Trello)
 
-O planeamento e execução do projeto seguiram uma metodologia ágil através do Kanban. Como o projeto se encontra finalizado, todas as tarefas de desenvolvimento propostas pelo escopo foram movidas para a coluna de concluídas.
+O planejamento e execução do projeto seguiram uma metodologia ágil através do Kanban. Como o projeto se encontra finalizado, todas as tarefas de desenvolvimento propostas pelo escopo foram movidas para a coluna de concluídas.
 
 🔗 **Link do Quadro Oficial:** [Quadro Trello - CineMatch Web](https://trello.com/b/EdJxC2T1/cinematch-web)
 
