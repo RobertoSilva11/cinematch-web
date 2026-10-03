@@ -80,36 +80,47 @@ export class Series extends Conteudo {
  * Calculadora de Match para Séries (RF07)
  */
 export class MatchCalculator {
-  static calcularMatchDetalhado(generosUsuario, generosSerie) {
-    if (
-      !generosUsuario ||
-      !generosUsuario.length ||
-      !generosSerie ||
-      !generosSerie.length
-    ) {
+  static calcularMatchDetalhado(generosUsuario = [], generosSerie = []) {
+    if (!generosUsuario.length || !generosSerie.length) {
       return {
         percentual: 0,
-        classificacao: "Baixa",
-        comuns: [],
-        naoExplorados: generosSerie || [],
+        classificacao: "Nenhuma",
+        generosComuns: [],
+        generosNaoExplorados: generosSerie,
       };
     }
 
-    const comuns = generosSerie.filter((g) => generosUsuario.includes(g));
-    const naoExplorados = generosSerie.filter(
+    // Gêneros no perfil do usuário em comum aos da série
+    const generosComuns = generosSerie.filter((g) =>
+      generosUsuario.includes(g),
+    );
+    // Gêneros da série que não estão no perfil do usuário
+    const generosNaoExplorados = generosSerie.filter(
       (g) => !generosUsuario.includes(g),
     );
+    // Calcular percentual compatibilidade/correspondencia
     const percentual = Math.min(
-      Math.round((comuns.length / generosSerie.length) * 100),
+      Math.round((generosComuns.length / generosSerie.length) * 100),
       100,
     );
+    // Classificar compatibilidade/correspondencia (Baixa | Média | Alta)
+    let classificacao;
+    // Cumpre o RF07: Classificação com switch-case
+    switch (true) {
+      case percentual >= 1 && percentual <= 49:
+        classificacao = "Baixa";
+        break;
+      case percentual >= 50 && percentual <= 79:
+        classificacao = "Média";
+        break;
+      case percentual > 79:
+        classificacao = "Alta";
+        break;
+      default:
+        classificacao = "Nenhuma Afinidade";
+    }
 
-    // Cumpre o RF07: Classificação com if-else
-    let classificacao = "";
-    if (percentual >= 70) classificacao = "Alta Afinidade";
-    else if (percentual >= 40) classificacao = "Média Afinidade";
-    else classificacao = "Baixa Afinidade";
-
-    return { percentual, classificacao, comuns, naoExplorados };
+    return { percentual, classificacao, generosComuns, generosNaoExplorados,
+    };
   }
 }
