@@ -280,18 +280,32 @@ function criarCardSerie(serie, matchDetalhes = null) {
     serie.imagemMedia ||
     serie.imagemOriginal ||
     "https://via.placeholder.com/210x295?text=Sem+Capa";
-  const nota = serie.avaliacaoNota ? `${serie.avaliacaoNota} / 10` : "N/A";
+
+  const nota = 
+    serie.avaliacaoNota !== null && serie.avaliacaoNota !== undefined
+      ? `${serie.avaliacaoNota} / 10`
+      : "N/A";
+
   const sinopseExibicao = obterSinopse(serie);
 
+  /*
+   * Badge de Match
+   */
   if (matchDetalhes) {
+    const percentual = Number(matchDetalhes.percentual) || 0;
+
     const badge = document.createElement("div");
     // Usa a classificação para definir a cor
-    badge.className = `badge-match ${matchDetalhes.percentual >= 50 ? "match-alto" : "match-medio"} notranslate`;
-    badge.textContent = `${matchDetalhes.percentual}% - ${matchDetalhes.classificacao}`;
+    badge.className = `badge-match ${matchDetalhes.percentual >= 50 ? "match-alto" : "match-medio"} notranslate`; 
+    badge.textContent = `${percentual}% Match`;
     card.appendChild(badge);
   }
 
+  /*
+   * Imagem
+   */
   const img = document.createElement("img");
+
   img.src = imagemPoster;
   img.alt = `Poster de ${serie.titulo}`;
   img.className = "img-poster";
@@ -299,71 +313,172 @@ function criarCardSerie(serie, matchDetalhes = null) {
   img.onerror = function () {
     card.remove();
   };
-
   card.appendChild(img);
 
+  /*
+   * Conteúdo
+   */
   const conteudo = document.createElement("div");
   conteudo.className = "conteudo-card";
 
+  /*
+   * Título
+   */
   const titulo = document.createElement("h3");
-  titulo.textContent = serie.titulo;
+  titulo.textContent = serie.titulo || "Título não informado";
   conteudo.appendChild(titulo);
 
+  /*
+   * Gêneros da série
+   */
   const generos = document.createElement("p");
   generos.className = "generos-card";
-  generos.textContent = (serie.generos || []).join(" • ");
+  generos.textContent =
+    Array.isArray(serie.generos) && serie.generos.length > 0
+      ? serie.generos.join(" • ")
+      : "Gêneros não informados";
+
   conteudo.appendChild(generos);
 
-  // Injeção dos dados exigidos pelo RF08 (Gêneros em comum e não explorados)
-  if (matchDetalhes) {
-    const detalhesMatch = document.createElement("div");
-    detalhesMatch.style.fontSize = "0.75rem";
-    detalhesMatch.style.color = "var(--primary-accent)";
-    detalhesMatch.style.marginBottom = "0.5rem";
-
-    const pComuns = document.createElement("p");
-    pComuns.innerHTML = `<strong>Em comum:</strong> ${matchDetalhes.comuns.join(", ") || "Nenhum"}`;
-
-    const pFaltam = document.createElement("p");
-    pFaltam.innerHTML = `<strong>Não explorados:</strong> ${matchDetalhes.naoExplorados.join(", ") || "Nenhum"}`;
-    pFaltam.style.color = "var(--text-muted)";
-
-    detalhesMatch.appendChild(pComuns);
-    detalhesMatch.appendChild(pFaltam);
-    conteudo.appendChild(detalhesMatch);
-  }
-
+  /*
+   * Sinopse
+   */
   const sinopse = document.createElement("p");
   sinopse.className = "sinopse-card";
   sinopse.textContent = sinopseExibicao;
   conteudo.appendChild(sinopse);
 
+  // Injeção dos dados exigidos pelo RF08 (Gêneros em comum e não explorados)
+  /*
+   * Informações de afinidade
+   */
+  if (matchDetalhes) {
+    const percentual = Number(matchDetalhes.percentual) || 0;
+    const classificacao = matchDetalhes.classificacao || "Nenhuma Afinidade";
+
+    // Container da afinidade
+    const afinidade = document.createElement("div");
+    afinidade.className = "afinidade-card";
+
+    //Cabeçalho da afinidade
+    const afinidadeCabecalho = document.createElement("div");
+      afinidadeCabecalho.className = "afinidade-cabecalho";
+    const afinidadeTitulo = document.createElement("span");
+      afinidadeTitulo.className = "afinidade-titulo";
+      afinidadeTitulo.textContent = percentual ? "Afinidade" : "";
+    const afinidadeClassificacao = document.createElement("strong");
+      afinidadeClassificacao.className = "afinidade-classificacao";
+      afinidadeClassificacao.textContent = classificacao;
+      afinidadeCabecalho.appendChild(afinidadeTitulo);
+      afinidadeCabecalho.appendChild(afinidadeClassificacao);
+      afinidade.appendChild(afinidadeCabecalho);
+
+    // Barra de progresso
+    const barra = document.createElement("div");
+      barra.className = "match-barra";
+      barra.setAttribute("role", "progressbar");
+      barra.setAttribute("aria-valuenow", percentual);
+      barra.setAttribute("aria-valuemin", "0");
+      barra.setAttribute("aria-valuemax", "100");
+      barra.setAttribute("aria-label", `Afinidade de ${percentual}%`);
+
+    const progresso = document.createElement("div");
+      progresso.className = "match-progresso";
+      progresso.style.width = `${percentual}%`;
+      barra.appendChild(progresso);
+      afinidade.appendChild(barra);
+      conteudo.appendChild(afinidade);
+
+    //Gêneros em comum
+    const generosComuns = Array.isArray(matchDetalhes.generosComuns)
+      ? matchDetalhes.generosComuns
+      : [];
+
+    const containerComuns = document.createElement("div");
+      containerComuns.className = "generos-match generos-comuns";
+
+    const tituloComuns = document.createElement("span");
+      tituloComuns.className = "titulo-generos-match";
+      tituloComuns.textContent = "Em comum:";
+      containerComuns.appendChild(tituloComuns);
+
+    if (generosComuns.length > 0) {
+      generosComuns.forEach((genero) => {
+        const tag = document.createElement("span");
+          tag.className = "genero-tag";
+          tag.textContent = genero;
+        containerComuns.appendChild(tag);
+      });
+    } else {
+      const vazio = document.createElement("span");
+        vazio.className = "generos-vazio";
+        vazio.textContent = "Nenhum gênero em comum";
+      containerComuns.appendChild(vazio);
+    }
+    conteudo.appendChild(containerComuns);
+
+    // Gêneros ainda não explorados
+    const generosNaoExplorados = Array.isArray(
+      matchDetalhes.generosNaoExplorados,
+    )
+      ? matchDetalhes.generosNaoExplorados
+      : [];
+
+    const containerNaoExplorados = document.createElement("div");
+      containerNaoExplorados.className = "generos-match generos-nao-explorados";
+    
+    const tituloNaoExplorados = document.createElement("span");
+      tituloNaoExplorados.className = "titulo-generos-match";
+      tituloNaoExplorados.textContent = "Ainda não explorados:";
+      
+      containerNaoExplorados.appendChild(tituloNaoExplorados);
+
+    if (generosNaoExplorados.length > 0) {
+      generosNaoExplorados.forEach((genero) => {
+        const tag = document.createElement("span");
+          tag.className = "genero-tag";
+          tag.textContent = genero;
+        containerNaoExplorados.appendChild(tag);
+      });
+    } else {
+      const vazio = document.createElement("span");
+        vazio.className = "generos-vazio";
+        vazio.textContent = "Nenhum gênero novo";
+      containerNaoExplorados.appendChild(vazio);
+    }
+    conteudo.appendChild(containerNaoExplorados);
+  }
+
+  /** 
+   * Rodapé 
+    */ 
   const rodape = document.createElement("div");
-  rodape.className = "rodape-card";
+    rodape.className = "rodape-card";
 
+  // Nota
   const spanNota = document.createElement("span");
-  spanNota.className = "nota-card";
-
+    spanNota.className = "nota-card";
   const iconeEstrela = document.createElement("i");
-  iconeEstrela.className = "bi bi-star-fill";
-  spanNota.appendChild(iconeEstrela);
-  spanNota.appendChild(document.createTextNode(` ${nota}`));
-  rodape.appendChild(spanNota);
+    iconeEstrela.className = "bi bi-star-fill";
+    spanNota.appendChild(iconeEstrela);
+    spanNota.appendChild(document.createTextNode(` ${nota}`));
 
+    rodape.appendChild(spanNota);
+
+  // Link
   const link = document.createElement("a");
-  link.href = serie.url;
-  link.target = "_blank";
-  link.rel = "noopener noreferrer";
-  link.className = "btn-detalhes";
-  link.textContent = "Ver Mais ";
+    link.href = serie.url || "#";
+    link.target = "_blank";
+    link.rel = "noopener noreferrer";
+    link.className = "btn-detalhes";
+    link.textContent = "Ver Mais ";
 
   const iconeSeta = document.createElement("i");
-  iconeSeta.className = "bi bi-box-arrow-up-right";
-  link.appendChild(iconeSeta);
-
-  rodape.appendChild(link);
-  conteudo.appendChild(rodape);
-  card.appendChild(conteudo);
+    iconeSeta.className = "bi bi-box-arrow-up-right";
+    link.appendChild(iconeSeta);
+    rodape.appendChild(link);
+    conteudo.appendChild(rodape);
+    card.appendChild(conteudo);
 
   return card;
 }
