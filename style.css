@@ -666,6 +666,118 @@ form {
   line-height: 1.35;
 }
 
+/* =========================================
+   AFINIDADE - CLASSIFICAÇÃO
+   ========================================= */
+
+.afinidade-card {
+    display: flex;
+    flex-direction: column;
+    gap: 0.4rem;
+    margin-top: 0.35rem;
+    padding: 0.65rem 0.75rem;
+    background-color: var(--bg-card);
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+}
+
+/* Cabeçalho da afinidade */
+
+.afinidade-cabecalho {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.5rem;
+}
+
+.afinidade-titulo {
+    color: var(--text-muted);
+    font-size: 0.75rem;
+    font-weight: 600;
+}
+
+.afinidade-classificacao {
+    color: var(--primary-accent);
+    font-size: 0.78rem;
+    font-weight: 800;
+}
+
+/* Barra de afinidade */
+
+.match-barra {
+    width: 100%;
+    height: 7px;
+    background-color: var(--bg-input);
+    border: 1px solid var(--border-color);
+    border-radius: 999px;
+    overflow: hidden;
+}
+
+.match-progresso {
+    width: 0;
+    height: 100%;
+    background-color: var(--primary-accent);
+    border-radius: inherit;
+    transition: width 0.3s ease;
+}
+
+/* =========================================
+   GÊNEROS RELACIONADOS AO MATCH
+   ========================================= */
+
+.generos-match {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.35rem;
+    margin-top: 0.35rem;
+}
+
+.titulo-generos-match {
+    width: 100%;
+    color: var(--text-muted);
+    font-size: 0.72rem;
+    font-weight: 700;
+}
+
+/* Tags dos gêneros */
+
+.genero-tag {
+    display: inline-flex;
+    align-items: center;
+    padding: 0.25rem 0.5rem;
+    border-radius: 12px;
+    font-size: 0.68rem;
+    font-weight: 600;
+    line-height: 1.2;
+}
+
+/* Gêneros em comum */
+
+.generos-comuns .genero-tag {
+    background-color: var(--primary-accent);
+    color: #ffffff;
+}
+
+/* Gêneros ainda não explorados */
+
+.generos-nao-explorados .genero-tag {
+    background-color: var(--bg-input);
+    color: var(--secondary-accent);
+    border: 1px solid var(--border-color);
+}
+
+.generos-vazio { 
+    color: var(--text-muted); 
+    font-size: 0.68rem; 
+    font-style: italic; 
+    opacity: 0.8; 
+}
+
+/* =========================================
+   RODAPÉ - NOTA AVALIAÇÃO
+   ========================================= */
+   
 .rodape-card {
   display: flex;
   justify-content: space-between;
