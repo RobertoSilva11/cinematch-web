@@ -1,6 +1,8 @@
 # 🎬 CineMatch Web: Recomendação de Séries
 
-![Logo do CineMatch Web](https://github.com/RobertoSilva11/cinematch-web/blob/develop/img/Logo.png)
+<div align="center">
+  <img src="https://github.com/RobertoSilva11/cinematch-web/raw/develop/img/Logo.png" width="300" alt="Logo do CineMatch Web">
+</div>
 
 ## ℹ️ Sobre o Projeto
 O **CineMatch Web** é a evolução com interface gráfica do motor de recomendação original. A aplicação resolve o problema da indecisão na hora de escolher uma série, permitindo que o usuário crie um perfil com os seus gêneros favoritos e receba recomendações instantâneas, baseadas num catálogo real de séries (TVMaze), diretamente no navegador.
