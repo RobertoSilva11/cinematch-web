@@ -305,7 +305,7 @@ function criarCardSerie(serie, matchDetalhes = null) {
       containerComuns.className = "generos-match generos-comuns";
 
     const tituloComuns = document.createElement("span");
-      tituloComuns.className = "titulo-generos-match";
+      tituloComuns.className = "titulo-generos-match notranslate";
       tituloComuns.textContent = "Em comum:";
       containerComuns.appendChild(tituloComuns);
 
