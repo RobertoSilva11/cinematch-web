@@ -11,8 +11,6 @@ import { inicializarGeolocalizacao } from "./translator.js";
 
 import { buscarCatalogo } from "./api.js";
 
-import { Series } from "./modelo.js";
-
 document.addEventListener("DOMContentLoaded", () => {
   // 1. Temporizador de 5 segundos para a Splash Screen de Introdução
   setTimeout(() => {
