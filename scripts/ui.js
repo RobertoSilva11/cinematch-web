@@ -1,5 +1,7 @@
 import { buscarCatalogo } from "./api.js";
 import { MatchCalculator, Series } from "./modelo.js";
+import { validarDadosFormPerfil } from "./validador.js";
+import { processarErros } from "./gerenciadorErros.js";
 
 const GENEROS_ESTATICOS = [
   { label: "Ação", value: "Action" },
@@ -27,7 +29,6 @@ const GENEROS_ESTATICOS = [
 const generosSelecionados = new Set();
 let filtroIdiomaAtivo = false;
 let localizacaoAtiva = false;
-const elementosErro = [];
 
 // --- RF11: CLOSURE ---
 // Preserva o estado de quantas buscas o utilizador fez nesta sessão
@@ -173,100 +174,6 @@ export function inicializarMenuHamburguer() {
       menuNavegacao.classList.toggle("aberto");
     });
   }
-}
-
-/**
- * Renderizar e Exibir as Mensagens de Erro
- */
-export function renderizarMensagemErro(elemento, id) {
-  switch (id) {
-    case "nome":
-      if (document.getElementById(`${id}-erro`)) {
-        elemento.focus();
-        break;
-      }
-      const errorPerfilNome = document.createElement("span");
-      errorPerfilNome.id = `${id}-erro`;
-      errorPerfilNome.classList.add("msg-erro");
-      elemento.classList.add("perfil-erro");
-
-      errorPerfilNome.textContent =
-        "Nome não pode conter caracter especial, número, vários espaços e menos de 3 letras!";
-
-      elemento.after(errorPerfilNome);
-      elemento.focus();
-      break;
-
-    case "idade":
-      if (document.getElementById(`${id}-erro`)) {
-        elemento.focus();
-        break;
-      }
-      const errorPerfilIdade = document.createElement("span");
-      errorPerfilIdade.id = `${id}-erro`;
-      errorPerfilIdade.classList.add("msg-erro");
-      elemento.classList.add("perfil-erro");
-
-      errorPerfilIdade.textContent = "Idade não pode ser menor que UM(1)!";
-
-      elemento.after(errorPerfilIdade);
-      elemento.focus();
-      break;
-
-    default:
-      console.log(`Nada a fazer na função renderizarMensagemErro!`);
-  }
-}
-
-/**
- * Remove as Mensagens e Classes dos Campos com Erro
- */
-export function limparMensagensErro(elementosErro) {
-  elementosErro.forEach((elemento) => {
-    elemento.classList.remove("perfil-erro");
-    const mensagemErro = document.getElementById(`${elemento.id}-erro`);
-
-    if (mensagemErro) {
-      mensagemErro.remove();
-    }
-  });
-}
-
-/**
- * Função de validação dos campos do formulário
- SEPARADO*/
-export function validarDadosFormPerfil() {
-  const nomeUsuario = document.querySelector("#nome");
-  const idadeUsuario = document.querySelector("#idade");
-
-  if (elementosErro.length > 0) {
-    limparMensagensErro(elementosErro);
-    elementosErro.length = 0;
-  }
-
-  const regexNome = /^(?=.*[A-Za-zÀ-ÿ])[A-Za-zÀ-ÿ\s]+$/;
-
-  if (
-    !regexNome.test(nomeUsuario.value.trim()) ||
-    nomeUsuario.value.trim().length < 3
-  ) {
-    elementosErro.push(nomeUsuario);
-    renderizarMensagemErro(nomeUsuario, nomeUsuario.id);
-  }
-
-  if (!idadeUsuario.value || Number(idadeUsuario.value) < 1) {
-    elementosErro.push(idadeUsuario);
-    renderizarMensagemErro(idadeUsuario, idadeUsuario.id);
-  }
-
-  if (elementosErro.length > 0 || generosSelecionados.size === 0) {
-    elementosErro.length > 0
-      ? elementosErro[0].focus()
-      : alert("Por favor, selecione pelo menos um gênero favorito.");
-    return false;
-  }
-
-  return true;
 }
 
 /**
@@ -800,7 +707,7 @@ export function configurarFormularioPerfil() {
 
     generosSelecionados.clear();
     perfil.generos.forEach((g) => generosSelecionados.add(g));
-
+    
     document.querySelectorAll(".btn-genero").forEach((btn) => {
       if (generosSelecionados.has(btn.dataset.value)) {
         btn.classList.add("selecionado");
@@ -935,7 +842,15 @@ export function configurarFormularioPerfil() {
       const nome = document.getElementById("nome").value.trim();
       const idade = document.getElementById("idade").value;
 
-      if (!validarDadosFormPerfil()) {
+      // Chamada Validação Dados Perfil
+      const erros = validarDadosFormPerfil(
+        nome,
+        idade,
+        generosSelecionados,
+      );
+
+      // Chamada Processar Erros
+      if (!processarErros(erros)) {
         return;
       }
 
@@ -975,7 +890,15 @@ export function configurarFormularioPerfil() {
       const nome = document.getElementById("nome").value.trim();
       const idade = document.getElementById("idade").value;
 
-      if (!validarDadosFormPerfil()) {
+      // Chamada Validação Dados Perfil
+      const erros = validarDadosFormPerfil(
+        nome,
+        idade,
+        generosSelecionados,
+      );
+
+      // Chamada Processar Erros
+      if (!processarErros(erros)) {
         return;
       }
 
