@@ -552,18 +552,23 @@ export async function renderizarSeries(callbackBoasVindas = exibirBoasVindas) {
     // Chamada Busca Catálogo Completo API (api.js)
     const series = transformarDadosApiEmSeries(await buscarCatalogo());
 
-    // Calcula o Match Detalhado e ordena
+    // Chamada Cálculo Match Detalhado (Classsifica Afinidade/Gêneros Comuns/Não Explorados) Ordenado
     const seriesComMatch = series
-      .map((serie) => ({
-        serie,
-        matchDetalhes: MatchCalculator.calcularMatchDetalhado(
+      .map((serie) => {
+        const matchDetalhes = MatchCalculator.calcularMatchDetalhado(
           perfilAtivo.generos,
           serie.generos || [],
-        ),
-      }))
-      .sort((a, b) => b.matchDetalhes.percentual - a.matchDetalhes.percentual);
+        );
+        return {
+          serie,
+          matchDetalhes,
+        };
+      })
+      .sort(
+        (a, b) => b.matchDetalhes.percentual - a.matchDetalhes.percentual,
+      );
 
-    // Separação em duas categorias
+    // Separação em Duas Categorias as Recomendações
     const maiorCompatibilidade = seriesComMatch.filter(
       (s) => s.matchDetalhes.percentual >= 50,
     );
@@ -574,21 +579,23 @@ export async function renderizarSeries(callbackBoasVindas = exibirBoasVindas) {
     esteiraAlto.innerHTML = "";
     esteiraMedio.innerHTML = "";
 
-    // Renderiza Seção 1
+    // Renderiza Seção 1 
     if (maiorCompatibilidade.length === 0) {
       exibirMensagemFeedback(
         esteiraAlto,
         "Nenhuma série com alta compatibilidade para os gêneros escolhidos.",
       );
     } else {
-      maiorCompatibilidade.forEach(({ serie, matchDetalhes }) => {
-        esteiraAlto.appendChild(criarCardSerie(serie, matchDetalhes));
+      maiorCompatibilidade.forEach((item) => {
+        esteiraAlto.appendChild(
+          criarCardSerie(item.serie, item.matchDetalhes),
+        );
       });
     }
 
     // Renderiza Seção 2
-    menosRecomendadas.forEach(({ serie, matchDetalhes }) => {
-      esteiraMedio.appendChild(criarCardSerie(serie, matchDetalhes));
+    menosRecomendadas.forEach((item) => {
+      esteiraMedio.appendChild(criarCardSerie(item.serie, item.matchDetalhes));
     });
 
     // Liga a inteligência de teclado nas esteiras
