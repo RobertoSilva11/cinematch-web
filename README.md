@@ -3,45 +3,61 @@
 ![Logo do CineMatch Web](https://github.com/RobertoSilva11/cinematch-web/blob/develop/img/Logo.png)
 
 ## ℹ️ Sobre o Projeto
-O CineMatch Web é uma aplicação interativa desenvolvida para conectar usuários às suas próximas séries favoritas de forma dinâmica. Baseado nos princípios de experiência do usuário, o sistema recomenda produções televisivas cruzando os gêneros cinematográficos de maior afinidade com o gosto pessoal do usuário, além de considerar filtros de localização e idioma.
+O **CineMatch Web** é a evolução com interface gráfica do motor de recomendação original. A aplicação resolve o problema da indecisão na hora de escolher uma série, permitindo que o usuário crie um perfil com os seus gêneros favoritos e receba recomendações instantâneas, baseadas num catálogo real de séries (TVMaze), diretamente no navegador.
 
-##  Funcionalidades Principais (User Stories)
-- **Splash Screen de Introdução:** Tela inicial de apresentação animada com duração controlada de 5 segundos.
-- **Cadastro de Perfil de Usuário:** Criação de perfil com nome, idade e seleção de múltiplos gêneros favoritos. Suporte para múltiplos perfis salvos via LocalStorage.
-- **Recomendação Inteligente:** Cálculo percentual de afinidade (Match%) cruzando gêneros do perfil com os gêneros das séries do catálogo.
-- **Duas Esteiras de Recomendações:** Classificação automática das séries em duas categorias exibidas em carrosséis horizontais:
-  - *Séries com maior compatibilidade* (Match >= 50%)
-  - *Menos recomendadas / Outros* (Match < 50%)
-- **Tradução Local de Sinopses:** Ao ativar o recurso de geolocalização, sinopses do catálogo em inglês são traduzidas para o português através de um dicionário local integrado, otimizando o tempo de resposta e garantindo estabilidade offline.
-- **Busca Avançada:** Modal dedicado com buscador textual que filtra todo o catálogo da API em tempo real conforme as iniciais digitadas.
-- **Alternância de Temas:** Switch para modo diurno (Light Mode) e modo noturno (Dark Mode) com persistência no LocalStorage.
-- **Responsividade:** Layout adaptável para dispositivos móveis e desktops.
+## 🚀 Funcionalidades Principais (User Stories)
+- **Apresentação Animada:** Splash Screen inicial com loader dinâmico.
+- **Gerenciamento de Perfis:** Criação, seleção e exclusão de múltiplos perfis com persistência de dados utilizando a API de `LocalStorage`.
+- **Motor de Recomendação (Match%):** Algoritmo inteligente que cruza as preferências do usuário com o catálogo. Classifica as produções detalhadamente em "Alta", "Média" ou "Baixa" afinidade, além de mapear gêneros em comum e gêneros não explorados.
+- **Tradução Dinâmica Integrada:** Recurso de geolocalização que, ao ativado, adapta as sinopses em tempo real para o idioma local (Português) explorando de forma invisível a API do Google Translate.
+- **Esteiras de Recomendação:** Resultados organizados em carrosséis interativos, separados entre "Maior Compatibilidade" e "Outras Recomendações".
+- **Busca Avançada em Tempo Real:** Modal de pesquisa que filtra as produções do catálogo conforme o usuário digita.
+- **Acessibilidade Plena (a11y):** Implementação de *Roving Tabindex* para navegação fluida via teclado (setas direcionais) pelas esteiras de filmes e modais.
+- **Tema Customizável:** Alternância nativa entre *Light Mode* e *Dark Mode*, com persistência de estado.
 
-## 💻 Tecnologias Utilizadas
-- **HTML5:** Estrutura e semântica da aplicação.
-- **CSS3:** Estilização, animações (Keyframes), variaveis CSS (Theming) e Flexbox/CSS Grid.
-- **JavaScript (ES6+):** Programação Orientada a Objetos, Módulos (ES Modules), manipulação assíncrona (Fetch API) e uso de LocalStorage.
-- **Bootstrap Icons:** Biblioteca de ícones.
-- **API Consumida:** TVMaze API para obtenção de séries.
-- **Fontes Google:** Plus Jakarta Sans.
+## 💻 Tecnologias e Arquitetura
+O projeto foi modernizado e estruturado com os melhores padrões de desenvolvimento front-end (Mobile-First):
 
-## 🏗️ Estrutura do Código
-A lógica interna foi dividida em componentes modulares para facilitar a manutenção e escalabilidade:
+*   **HTML5 Semântico:** Estrutura rica em landmarks (`<search>`, `<article>`, `<section>`, `<header>`) focada na legibilidade e indexação.
+*   **CSS3 Vanilla:** Variaveis CSS para paleta de cores (Temas), Flexbox e Animações (Keyframes).
+*   **JavaScript (ES6+):** 
+    *   **Arquitetura ESM (ES Modules):** Código totalmente modularizado em múltiplos arquivos para clara separação de responsabilidades.
+    *   **Orientação a Objetos (POO):** Utilização de Classes, Herança e métodos compartilhados.
+    *   **Lógica Funcional:** Uso de Closures (para rastreio de sessão), Callbacks e alta manipulação de arrays iterativos (`map`, `filter`, `sort`).
+    *   **Assincronicidade:** Integração com a *Fetch API* (TVMaze) e funções assíncronas com tratamento de rede.
+*   **Acessibilidade e Usabilidade:** Elementos focáveis geridos manualmente e validações de input em tempo real.
 
-- `index.html`: Arquivo principal da interface que abriga o formulário de perfil, resultados em carrosséis e o modal de busca avançada.
-- `script.js`: Arquivo que gerencia o fluxo inicial do carregamento do documento, incluindo o temporizador do splash screen e inicialização dos componentes visuais.
-- `ui.js`: Módulo principal da interface do usuário. Contém funções de tradução local de sinopse, renderização de cards, carrosséis, controles de eventos e persistência de dados no LocalStorage.
-- `modelo.js`: Módulo que contém a classe de Perfil do Usuário e a classe `MatchCalculator`, responsável pelo algoritmo puro de afinidade entre gêneros.
-- `style.css`: Folha de estilo contendo as regras globais, temas claro/escuro, animações e componentes mobile.
+## 🏗️ Estrutura do Projeto (Módulos)
+A modularização do código dividiu a aplicação nos seguintes componentes lógicos:
+- `script.js`: Ponto de entrada da aplicação (Entry Point) e fluxo inicial.
+- `api.js`: Camada exclusiva para consumo assíncrono de dados externos (API TVMaze) e simulação de rede.
+- `modelo.js`: Regras de negócio e Classes principais (`PerfilUsuario`, `Conteudo`, `Series` e `MatchCalculator`).
+- `ui.js`: Controladores principais da interface do usuário (DOM), renderização de cards, carrosséis e formulários.
+- `translator.js`: Lógica complexa de geolocalização atrelada à adaptação instantânea de idiomas.
+- `gerenciadorErros.js`: Motor de validação visual e feedbacks em tempo real de formulário.
 
-## ⚙️ Como Executar
-1. Clone este repositório para a sua máquina.
-2. Certifique-se de que a estrutura de pastas (`img/logo.png` e os arquivos JS) está mantida.
-3. Abra o arquivo `index.html` diretamente em qualquer navegador moderno.
-4. Crie o seu perfil, selecione seus gêneros e clique em "Achar Meu Match".
+## ⚙️ Como Executar o Projeto Localmente
+Para a melhor experiência, recomendamos a utilização de um servidor local para que o sistema de módulos (ESM) funcione corretamente.
+
+1. Clone este repositório para a sua máquina:
+   ```bash
+   git clone [https://github.com/RobertoSilva11/cinematch-web.git](https://github.com/RobertoSilva11/cinematch-web.git)
+   cd cinematch-web
+2. Certifique-se de que a estrutura de pastas (`img/logo.png e logo-fundo.png` e os arquivos JS) está mantida.
+3. **Instale as dependências locais:**
+    ```bash
+    npm install
+    ```
+4. **Inicie o servidor de desenvolvimento:**
+    ```bash
+    npm start
+    ```
+    *O comando irá iniciar o pacote `live-server` configurado no `package.json` e abrirá a aplicação automaticamente no seu navegador.*    
+5. Crie o seu perfil, selecione seus gêneros e clique em "Achar Meu Match".
 
 ## 👥 Desenvolvedores
 - **Diego Lopes**
 - **Edson Antonio**
 - **Roberto Silva**
+
 Qualificação em Desenvolvimento Mobile com React Native (SCTEC/SENAI) — 2026.
