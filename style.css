@@ -581,7 +581,7 @@ form {
   width: 42px;
   height: 42px;
   border-radius: 50%;
-  display: flex;
+  display: none;
   align-items: center;
   justify-content: center;
   font-size: 1.2rem;
@@ -988,5 +988,9 @@ body {
   }
   #container-generos {
     grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
+  }
+
+  .btn-carrossel {
+    display: flex;
   }
 }
