@@ -977,7 +977,7 @@ export async function carregarBannerInicial() {
     const preencherTrilho = () => {
       top20.forEach((serie) => {
         const imagem =
-          serie.imagemMedia ||
+          serie.imagem ||
           serie.imagemOriginal ||
           "https://via.placeholder.com/200x295?text=Sem+Capa";
 
