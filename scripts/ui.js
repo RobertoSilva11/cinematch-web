@@ -52,7 +52,7 @@ export function exibirBoasVindas(nome, tentativas) {
 export function exibirMensagemFeedback(
   elementoContainer,
   textoMensagem,
-  ehErro = false,
+  erro = false,
   temSpinner = false,
 ) {
   elementoContainer.innerHTML = "";
@@ -67,7 +67,7 @@ export function exibirMensagemFeedback(
   }
 
   p.appendChild(document.createTextNode(textoMensagem));
-  if (ehErro) p.style.color = "#e63946";
+  if (erro) p.style.color = "#e63946";
 
   elementoContainer.appendChild(p);
 }
@@ -1020,7 +1020,7 @@ export async function carregarBannerInicial() {
 /**
  * Aplica o padrão Roving Tabindex para acessibilidade de teclado em carrosséis e grelhas
  */
-function aplicarNavegacaoTecladoAcessivel(container, ehGrid = false) {
+function aplicarNavegacaoTecladoAcessivel(container, grid = false) {
   if (!container) return;
 
   const links = container.querySelectorAll(".btn-detalhes");
@@ -1042,7 +1042,7 @@ function aplicarNavegacaoTecladoAcessivel(container, ehGrid = false) {
 
       // Calcula dinamicamente quantas colunas o grid tem no momento (responsividade)
       let colunas = 1;
-      if (ehGrid && links.length > 1) {
+      if (grid && links.length > 1) {
         const cards = Array.from(container.querySelectorAll(".card-serie"));
         colunas =
           cards.filter((c) => c.offsetTop === cards[0].offsetTop).length || 1;
@@ -1054,15 +1054,15 @@ function aplicarNavegacaoTecladoAcessivel(container, ehGrid = false) {
       } else if (e.key === "ArrowLeft") {
         novoIndex = index - 1 >= 0 ? index - 1 : index;
         e.preventDefault();
-      } else if (ehGrid && e.key === "ArrowDown") {
+      } else if (grid && e.key === "ArrowDown") {
         novoIndex = index + colunas < links.length ? index + colunas : index;
         e.preventDefault();
-      } else if (ehGrid && e.key === "ArrowUp") {
+      } else if (grid && e.key === "ArrowUp") {
         novoIndex = index - colunas >= 0 ? index - colunas : index;
         e.preventDefault();
       } else if (e.key === "Tab" && !e.shiftKey) {
-        // No modal (Grid), o Tab "pula" os cards e vai direto para o botão fechar (X)
-        if (ehGrid) {
+        // No modal (grid), o Tab "pula" os cards e vai direto para o botão fechar (X)
+        if (grid) {
           e.preventDefault();
           const btnFechar = document.getElementById(
             "btn-fechar-busca-avancada",

@@ -476,12 +476,13 @@ form {
 }
 
 #container-generos {
-  display: grid;
-  grid-template-columns: repeat(2, 1fr);
+  display: flex;
+  flex-wrap: wrap;
   gap: 0.5rem;
 }
 
 .btn-genero {
+  flex: 1 1 calc(50% - 0.5rem);
   background-color: var(--bg-input);
   color: var(--text-main);
   border: 2px solid var(--border-color);
@@ -909,9 +910,15 @@ form {
 }
 
 .grid-busca-avancada {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
   gap: 1.25rem;
+}
+
+.grid-busca-avancada .card-serie {
+  flex: 1 1 200px;
+  max-width: 250px; 
 }
 
 /* =======================================================
@@ -986,8 +993,9 @@ body {
     padding: 0 1rem;
     gap: 2rem;
   }
-  #container-generos {
-    grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
+  
+  #container-generos .btn-genero {
+    flex: 1 1 130px; /* No desktop, os botões assumem uma largura mínima de 130px */
   }
 
   .btn-carrossel {
