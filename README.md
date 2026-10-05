@@ -1,7 +1,7 @@
 # 🎬 CineMatch Web: Recomendação de Séries
 **🌍 Acesso ao projeto online:** https://robertosilva11.github.io/cinematch-web/
 
-**🎬 Video de apresentação:** https://drive.google.com/file/d/1ib8zstRrRqntrnlqPdmoAd2bGJMVZu5C/view?usp=drive_link
+**🎬 Video de apresentação:** https://drive.google.com/file/d/14ZIu4kZkTgJDuN6iPXTRECIR3Jpndt8q/view?usp=drive_link
 
 <div align="center">
   <img src="https://github.com/RobertoSilva11/cinematch-web/raw/develop/img/Logo.png" width="300" alt="Logo do CineMatch Web">
