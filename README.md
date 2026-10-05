@@ -21,12 +21,13 @@ O **CineMatch Web** é a evolução com interface gráfica do motor de recomenda
 - **Tema Customizável:** Alternância nativa entre *Light Mode* e *Dark Mode*, com persistência de estado.
 
 ## 💻 Tecnologias e Arquitetura
+
 O projeto foi modernizado e estruturado com os melhores padrões de desenvolvimento front-end (Mobile-First):
 
 *   **HTML5 Semântico:** Estrutura rica em landmarks (`<search>`, `<article>`, `<section>`, `<header>`) focada na legibilidade e indexação.
 *   **CSS3 Vanilla:** Variaveis CSS para paleta de cores (Temas), Flexbox e Animações (Keyframes).
-*   **JavaScript (ES6+):** 
-    *   **Arquitetura ESM (ES Modules):** Código totalmente modularizado em múltiplos arquivos para clara separação de responsabilidades.
+*   **JavaScript (ES6+):**
+    *   **Módulos:** No protótipo anterior, **CineMatch JS (terminal)**, utilizou-se **CommonJS** (`require` / `module.exports`), sistema tradicional de módulos do Node.js. Na versão Web, o projeto foi modernizado para **ES Modules (ESM)** (`import` / `export`), padrão moderno do JavaScript, suportado nativamente pelos navegadores.
     *   **Orientação a Objetos (POO):** Utilização de Classes, Herança e métodos compartilhados.
     *   **Lógica Funcional:** Uso de Closures (para rastreio de sessão), Callbacks e alta manipulação de arrays iterativos (`map`, `filter`, `sort`).
     *   **Assincronicidade:** Integração com a *Fetch API* (TVMaze) e funções assíncronas com tratamento de rede.
