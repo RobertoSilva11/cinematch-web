@@ -995,7 +995,7 @@ body {
   }
   
   #container-generos .btn-genero {
-    flex: 1 1 130px; /* No desktop, os botões assumem uma largura mínima de 130px */
+    flex: 0 1 130px; /* No desktop, os botões assumem uma largura mínima de 130px */
   }
 
   .btn-carrossel {
