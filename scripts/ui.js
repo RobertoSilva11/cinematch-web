@@ -589,6 +589,12 @@ export function configurarModalBuscaAvancada() {
     filtradas.forEach((serie) => {
       containerResultados.appendChild(criarCardSerie(serie));
     });
+    const selectBox = document.querySelector(".goog-te-combo");
+    if (selectBox && selectBox.value === "pt") {
+      setTimeout(() => {
+        selectBox.dispatchEvent(new Event("change"));
+      }, 150);
+    }
     // Liga a inteligência de teclado nos resultados da busca
     aplicarNavegacaoTecladoAcessivel(containerResultados, true);
   };
