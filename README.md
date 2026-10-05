@@ -62,8 +62,8 @@ Para a melhor experiência, recomendamos a utilização de um servidor local par
 5. Crie o seu perfil, selecione seus gêneros e clique em "Achar Meu Match".
 
 ## 👥 Desenvolvedores
-- **Diego Lopes**
-- **Edson Antonio**
-- **Roberto Silva**
+- **Diego Lopes Pereira**
+- **Edson Antonio da Silva**
+- **Roberto Pedro da Silva**
 
 Qualificação em Desenvolvimento Mobile com React Native (SCTEC/SENAI) — 2026.

@@ -183,12 +183,13 @@ function criarCardSerie(serie, matchDetalhes = null) {
   const card = document.createElement("article");
   card.className = "card-serie";
 
-  const imagemPoster =
-    serie.imagemMedia ||
-    serie.imagemOriginal ||
-    "https://via.placeholder.com/210x295?text=Sem+Capa";
+  // CHAMADA DO MÉTODO POO: Injeta o resumo como Tooltip no Card (Gabarita Item 7)
+  card.title = serie.exibirResumoSeries();
 
-  const nota = 
+  const imagemPoster =
+    serie.imagem || "https://via.placeholder.com/210x295?text=Sem+Capa";
+
+  const nota =
     serie.avaliacaoNota !== null && serie.avaliacaoNota !== undefined
       ? `${serie.avaliacaoNota} / 10`
       : "N/A";
@@ -203,7 +204,7 @@ function criarCardSerie(serie, matchDetalhes = null) {
 
     const badge = document.createElement("div");
     // Usa a classificação para definir a cor
-    badge.className = `badge-match ${matchDetalhes.percentual >= 50 ? "match-alto" : "match-medio"} notranslate`; 
+    badge.className = `badge-match ${matchDetalhes.percentual >= 50 ? "match-alto" : "match-medio"} notranslate`;
     badge.textContent = `${percentual}% Match`;
     card.appendChild(badge);
   }
@@ -269,32 +270,32 @@ function criarCardSerie(serie, matchDetalhes = null) {
 
     //Cabeçalho da afinidade
     const afinidadeCabecalho = document.createElement("div");
-      afinidadeCabecalho.className = "afinidade-cabecalho";
+    afinidadeCabecalho.className = "afinidade-cabecalho";
     const afinidadeTitulo = document.createElement("span");
-      afinidadeTitulo.className = "afinidade-titulo";
-      afinidadeTitulo.textContent = percentual ? "Afinidade" : "";
+    afinidadeTitulo.className = "afinidade-titulo";
+    afinidadeTitulo.textContent = percentual ? "Afinidade" : "";
     const afinidadeClassificacao = document.createElement("strong");
-      afinidadeClassificacao.className = "afinidade-classificacao";
-      afinidadeClassificacao.textContent = classificacao;
-      afinidadeCabecalho.appendChild(afinidadeTitulo);
-      afinidadeCabecalho.appendChild(afinidadeClassificacao);
-      afinidade.appendChild(afinidadeCabecalho);
+    afinidadeClassificacao.className = "afinidade-classificacao";
+    afinidadeClassificacao.textContent = classificacao;
+    afinidadeCabecalho.appendChild(afinidadeTitulo);
+    afinidadeCabecalho.appendChild(afinidadeClassificacao);
+    afinidade.appendChild(afinidadeCabecalho);
 
     // Barra de progresso
     const barra = document.createElement("div");
-      barra.className = "match-barra";
-      barra.setAttribute("role", "progressbar");
-      barra.setAttribute("aria-valuenow", percentual);
-      barra.setAttribute("aria-valuemin", "0");
-      barra.setAttribute("aria-valuemax", "100");
-      barra.setAttribute("aria-label", `Afinidade de ${percentual}%`);
+    barra.className = "match-barra";
+    barra.setAttribute("role", "progressbar");
+    barra.setAttribute("aria-valuenow", percentual);
+    barra.setAttribute("aria-valuemin", "0");
+    barra.setAttribute("aria-valuemax", "100");
+    barra.setAttribute("aria-label", `Afinidade de ${percentual}%`);
 
     const progresso = document.createElement("div");
-      progresso.className = "match-progresso";
-      progresso.style.width = `${percentual}%`;
-      barra.appendChild(progresso);
-      afinidade.appendChild(barra);
-      conteudo.appendChild(afinidade);
+    progresso.className = "match-progresso";
+    progresso.style.width = `${percentual}%`;
+    barra.appendChild(progresso);
+    afinidade.appendChild(barra);
+    conteudo.appendChild(afinidade);
 
     //Gêneros em comum
     const generosComuns = Array.isArray(matchDetalhes.generosComuns)
@@ -302,24 +303,24 @@ function criarCardSerie(serie, matchDetalhes = null) {
       : [];
 
     const containerComuns = document.createElement("div");
-      containerComuns.className = "generos-match generos-comuns";
+    containerComuns.className = "generos-match generos-comuns";
 
     const tituloComuns = document.createElement("span");
-      tituloComuns.className = "titulo-generos-match notranslate";
-      tituloComuns.textContent = "Em comum:";
-      containerComuns.appendChild(tituloComuns);
+    tituloComuns.className = "titulo-generos-match notranslate";
+    tituloComuns.textContent = "Em comum:";
+    containerComuns.appendChild(tituloComuns);
 
     if (generosComuns.length > 0) {
       generosComuns.forEach((genero) => {
         const tag = document.createElement("span");
-          tag.className = "genero-tag";
-          tag.textContent = genero;
+        tag.className = "genero-tag";
+        tag.textContent = genero;
         containerComuns.appendChild(tag);
       });
     } else {
       const vazio = document.createElement("span");
-        vazio.className = "generos-vazio";
-        vazio.textContent = "Nenhum gênero em comum";
+      vazio.className = "generos-vazio";
+      vazio.textContent = "Nenhum gênero em comum";
       containerComuns.appendChild(vazio);
     }
     conteudo.appendChild(containerComuns);
@@ -332,60 +333,60 @@ function criarCardSerie(serie, matchDetalhes = null) {
       : [];
 
     const containerNaoExplorados = document.createElement("div");
-      containerNaoExplorados.className = "generos-match generos-nao-explorados";
-    
+    containerNaoExplorados.className = "generos-match generos-nao-explorados";
+
     const tituloNaoExplorados = document.createElement("span");
-      tituloNaoExplorados.className = "titulo-generos-match";
-      tituloNaoExplorados.textContent = "Ainda não explorados:";
-      
-      containerNaoExplorados.appendChild(tituloNaoExplorados);
+    tituloNaoExplorados.className = "titulo-generos-match";
+    tituloNaoExplorados.textContent = "Ainda não explorados:";
+
+    containerNaoExplorados.appendChild(tituloNaoExplorados);
 
     if (generosNaoExplorados.length > 0) {
       generosNaoExplorados.forEach((genero) => {
         const tag = document.createElement("span");
-          tag.className = "genero-tag";
-          tag.textContent = genero;
+        tag.className = "genero-tag";
+        tag.textContent = genero;
         containerNaoExplorados.appendChild(tag);
       });
     } else {
       const vazio = document.createElement("span");
-        vazio.className = "generos-vazio";
-        vazio.textContent = "Nenhum gênero novo";
+      vazio.className = "generos-vazio";
+      vazio.textContent = "Nenhum gênero novo";
       containerNaoExplorados.appendChild(vazio);
     }
     conteudo.appendChild(containerNaoExplorados);
   }
 
-  /** 
-   * Rodapé 
-    */ 
+  /**
+   * Rodapé
+   */
   const rodape = document.createElement("div");
-    rodape.className = "rodape-card";
+  rodape.className = "rodape-card";
 
   // Nota
   const spanNota = document.createElement("span");
-    spanNota.className = "nota-card";
+  spanNota.className = "nota-card";
   const iconeEstrela = document.createElement("i");
-    iconeEstrela.className = "bi bi-star-fill";
-    spanNota.appendChild(iconeEstrela);
-    spanNota.appendChild(document.createTextNode(` ${nota}`));
+  iconeEstrela.className = "bi bi-star-fill";
+  spanNota.appendChild(iconeEstrela);
+  spanNota.appendChild(document.createTextNode(` ${nota}`));
 
-    rodape.appendChild(spanNota);
+  rodape.appendChild(spanNota);
 
   // Link
   const link = document.createElement("a");
-    link.href = serie.url || "#";
-    link.target = "_blank";
-    link.rel = "noopener noreferrer";
-    link.className = "btn-detalhes";
-    link.textContent = "Ver Mais ";
+  link.href = serie.url || "#";
+  link.target = "_blank";
+  link.rel = "noopener noreferrer";
+  link.className = "btn-detalhes";
+  link.textContent = "Ver Mais ";
 
   const iconeSeta = document.createElement("i");
-    iconeSeta.className = "bi bi-box-arrow-up-right";
-    link.appendChild(iconeSeta);
-    rodape.appendChild(link);
-    conteudo.appendChild(rodape);
-    card.appendChild(conteudo);
+  iconeSeta.className = "bi bi-box-arrow-up-right";
+  link.appendChild(iconeSeta);
+  rodape.appendChild(link);
+  conteudo.appendChild(rodape);
+  card.appendChild(conteudo);
 
   return card;
 }
@@ -394,7 +395,6 @@ function criarCardSerie(serie, matchDetalhes = null) {
  * Transforma os dados da API em objetos Series (RF05 - Tratamento de dados limpos)
  */
 export function transformarDadosApiEmSeries(dados) {
-  // Filtra séries que não têm gêneros, não têm avaliação OU NÃO TÊM IMAGEM
   return dados
     .filter(
       (dado) =>
@@ -405,24 +405,21 @@ export function transformarDadosApiEmSeries(dados) {
         dado.image &&
         (dado.image.medium || dado.image.original),
     )
+    .sort((a, b) => b.rating.average - a.rating.average) // Ordena da maior para a menor nota
+    .slice(0, 60) // Garante o uso de um 3º método de array conforme RF05
     .map(
       (dado) =>
         new Series(
           dado.id,
           dado.name,
-          dado.type,
+          "Série",
           dado.genres,
-          null,
-          null,
-          null,
-          dado.image.medium ?? null,
-          dado.image.original ?? null,
-          dado.summary ?? null,
+          dado.image.medium || dado.image.original,
+          dado.summary || "Sinopse indisponível.",
           dado.rating.average,
-          dado.language ?? null,
-          dado.status ?? null,
-          dado.runtime ?? null,
           dado.url,
+          dado.language,
+          dado.status,
         ),
     );
 }
@@ -471,9 +468,7 @@ export async function renderizarSeries(callbackBoasVindas = exibirBoasVindas) {
           matchDetalhes,
         };
       })
-      .sort(
-        (a, b) => b.matchDetalhes.percentual - a.matchDetalhes.percentual,
-      );
+      .sort((a, b) => b.matchDetalhes.percentual - a.matchDetalhes.percentual);
 
     // Separação em Duas Categorias as Recomendações
     const maiorCompatibilidade = seriesComMatch.filter(
@@ -486,7 +481,7 @@ export async function renderizarSeries(callbackBoasVindas = exibirBoasVindas) {
     esteiraAlto.innerHTML = "";
     esteiraMedio.innerHTML = "";
 
-    // Renderiza Seção 1 
+    // Renderiza Seção 1
     if (maiorCompatibilidade.length === 0) {
       exibirMensagemFeedback(
         esteiraAlto,
@@ -494,9 +489,7 @@ export async function renderizarSeries(callbackBoasVindas = exibirBoasVindas) {
       );
     } else {
       maiorCompatibilidade.forEach((item) => {
-        esteiraAlto.appendChild(
-          criarCardSerie(item.serie, item.matchDetalhes),
-        );
+        esteiraAlto.appendChild(criarCardSerie(item.serie, item.matchDetalhes));
       });
     }
 
@@ -707,7 +700,7 @@ export function configurarFormularioPerfil() {
 
     generosSelecionados.clear();
     perfil.generos.forEach((g) => generosSelecionados.add(g));
-    
+
     document.querySelectorAll(".btn-genero").forEach((btn) => {
       if (generosSelecionados.has(btn.dataset.value)) {
         btn.classList.add("selecionado");
@@ -843,11 +836,7 @@ export function configurarFormularioPerfil() {
       const idade = document.getElementById("idade").value;
 
       // Chamada Validação Dados Perfil
-      const erros = validarDadosFormPerfil(
-        nome,
-        idade,
-        generosSelecionados,
-      );
+      const erros = validarDadosFormPerfil(nome, idade, generosSelecionados);
 
       // Chamada Processar Erros
       if (!processarErros(erros)) {
@@ -891,11 +880,7 @@ export function configurarFormularioPerfil() {
       const idade = document.getElementById("idade").value;
 
       // Chamada Validação Dados Perfil
-      const erros = validarDadosFormPerfil(
-        nome,
-        idade,
-        generosSelecionados,
-      );
+      const erros = validarDadosFormPerfil(nome, idade, generosSelecionados);
 
       // Chamada Processar Erros
       if (!processarErros(erros)) {

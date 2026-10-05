@@ -21,11 +21,7 @@ export class Conteudo {
   }
 
   exibirResumoConteudo() {
-    return `
-     ID: ${this.id}
-     Título: ${this.titulo}
-     Tipo: ${this.tipo}
-     Gêneros: ${this.generos.join(", ")}`;
+    return `Título: ${this.titulo} | Gêneros: ${this.generos.join(", ")}`;
   }
 }
 
@@ -38,41 +34,29 @@ export class Series extends Conteudo {
     titulo,
     tipo,
     generos,
-    classificacao,
-    temporadas,
-    episodios,
-    imagemMedia = null,
-    imagemOriginal = null,
-    sinopse = null,
-    avaliacaoNota = null,
-    idioma = null,
-    status = null,
-    duracao = null,
-    url = null,
+    imagem,
+    sinopse,
+    avaliacaoNota,
+    url,
+    idioma,
+    status,
   ) {
-    super(id, titulo, tipo, generos);
+    super(id, titulo, tipo, generos); // Chama o construtor pai
 
-    this.classificacao = classificacao;
-    this.temporadas = temporadas;
-    this.episodios = episodios;
-    this.imagemMedia = imagemMedia;
-    this.imagemOriginal = imagemOriginal;
+    this.imagem = imagem;
     this.sinopse = sinopse;
     this.avaliacaoNota = avaliacaoNota;
+    this.url = url;
     this.idioma = idioma;
     this.status = status;
-    this.duracao = duracao;
-    this.url = url;
   }
 
   /**
-   * Exibe resumo específico da série
+   * Exibe resumo específico da série herdando e sobrescrevendo o pai (RF06)
    */
   exibirResumoSeries() {
-    return `
-     Classificação: ${this.classificacao ?? "Não informado"}
-     Temporadas: ${this.temporadas ?? "Não informado"}
-     Episódios: ${this.episodios ?? "Não informado"}`;
+    const resumoPai = super.exibirResumoConteudo();
+    return `${resumoPai} \nIdioma: ${this.idioma ?? "Não informado"} \nStatus: ${this.status ?? "Não informado"} \nNota TVMaze: ${this.avaliacaoNota ?? "N/A"}`;
   }
 }
 
@@ -120,7 +104,6 @@ export class MatchCalculator {
         classificacao = "Nenhuma Afinidade";
     }
 
-    return { percentual, classificacao, generosComuns, generosNaoExplorados,
-    };
+    return { percentual, classificacao, generosComuns, generosNaoExplorados };
   }
 }
